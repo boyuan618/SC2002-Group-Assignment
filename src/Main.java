@@ -1,12 +1,20 @@
+import pages.Login;
 import pages.MainMenu;
 
 public class Main {
     public static void main(String[] args) {
-        // Simulated login
-        String username = "john_doe";
-        String role = "Applicant"; // Can be "ProjectManager" or "HDBOfficer"
+        // Login and get user info
+        String[] userInfo = Login.loginUser(); // [NRIC, Role, Age, MaritalStatus]
+        if (userInfo == null)
+            return;
 
-        MainMenu menu = new MainMenu(username, role);
+        String nric = userInfo[0];
+        String role = userInfo[1];
+        int age = Integer.parseInt(userInfo[2]);
+        String maritalStatus = userInfo[3];
+
+        // Start main menu depending on role
+        MainMenu menu = new MainMenu(nric, role, age, maritalStatus);
         menu.displayMenu();
     }
 }

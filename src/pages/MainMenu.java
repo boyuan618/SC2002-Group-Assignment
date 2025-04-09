@@ -3,111 +3,107 @@ package pages;
 import java.util.Scanner;
 
 public class MainMenu {
-    private String userRole;
-    private String username;
+    private final String nric, role, maritalStatus;
+    private final int age;
+    private final Scanner sc = new Scanner(System.in);
 
-    public MainMenu(String username, String userRole) {
-        this.username = username;
-        this.userRole = userRole;
+    public MainMenu(String nric, String role, int age, String maritalStatus) {
+        this.nric = nric;
+        this.role = role;
+        this.age = age;
+        this.maritalStatus = maritalStatus;
     }
 
     public void displayMenu() {
-        Scanner sc = new Scanner(System.in);
-        boolean running = true;
+        while (true) {
+            System.out.println("\n===== BTO SYSTEM MENU (" + role.toUpperCase() + ") =====");
 
-        while (running) {
-            System.out.println("\n=== BTO Application System ===");
-            System.out.println("Logged in as: " + username + " (" + userRole + ")");
-            System.out.println("--------------------------------");
-
-            switch (userRole) {
-                case "Applicant":
-                    System.out.println("1. View BTO Projects");
-                    System.out.println("2. Apply for BTO");
-                    System.out.println("3. View My Application");
-                    System.out.println("4. Withdraw Application");
-                    System.out.println("5. Submit Enquiry");
-                    System.out.println("6. View Receipts");
-                    System.out.println("0. Logout");
+            switch (role.toLowerCase()) {
+                case "applicant":
+                    showApplicantMenu();
                     break;
-
-                case "ProjectManager":
-                    System.out.println("1. Create BTO Project");
-                    System.out.println("2. Edit Project");
-                    System.out.println("3. Toggle Project Visibility");
-                    System.out.println("4. View All Applications");
-                    System.out.println("0. Logout");
+                case "hdbofficer":
+                    showHDBOfficerMenu();
                     break;
-
-                case "HDBOfficer":
-                    System.out.println("1. View Applications");
-                    System.out.println("2. Approve/Reject Applications");
-                    System.out.println("3. View Enquiries");
-                    System.out.println("0. Logout");
-                    break;
-
-                default:
-                    System.out.println("Invalid role.");
-                    running = false;
-                    break;
-            }
-
-            System.out.print("Select an option: ");
-            String choice = sc.nextLine();
-
-            switch (choice) {
-                case "1":
-                    handleOption1();
-                    break;
-                case "2":
-                    handleOption2();
-                    break;
-                case "0":
-                    System.out.println("Logging out...");
-                    running = false;
+                case "hdbmanager":
+                    showHDBManagerMenu();
                     break;
                 default:
-                    System.out.println("Invalid choice.");
+                    System.out.println("❌ Unknown role.");
+                    return;
             }
         }
-
-        sc.close();
     }
 
-    private void handleOption1() {
-        switch (userRole) {
-            case "Applicant":
-                System.out.println("→ Viewing available BTO projects...");
-                // ProjectController.viewProjects();
-                break;
-            case "ProjectManager":
-                System.out.println("→ Creating new BTO project...");
-                // ProjectController.createProject();
-                break;
-            case "HDBOfficer":
-                System.out.println("→ Viewing all applications...");
-                // ApplicationController.viewAllApplications();
-                break;
+    private void showApplicantMenu() {
+        System.out.println("1. View Available Projects");
+        System.out.println("2. Apply for Project");
+        System.out.println("3. View Application Status");
+        System.out.println("4. Book Flat (if eligible)");
+        System.out.println("5. Request Withdrawal");
+        System.out.println("6. Submit Enquiry");
+        System.out.println("7. View/Edit/Delete Enquiry");
+        System.out.println("0. Logout");
+
+        int choice = Integer.parseInt(sc.nextLine());
+        switch (choice) {
+            case 1 -> ApplicantController.viewAvailableProjects(maritalStatus);
+            case 2 -> ApplicantController.applyForProject(nric, age, maritalStatus);
+            case 3 -> ApplicantController.viewApplication(nric);
+            case 4 -> ApplicantController.bookFlat(nric);
+            case 5 -> ApplicantController.requestWithdrawal(nric);
+            case 6 -> ApplicantController.submitEnquiry(nric);
+            case 7 -> ApplicantController.manageEnquiries(nric);
+            case 0 -> System.exit(0);
+            default -> System.out.println("❌ Invalid choice.");
         }
     }
 
-    private void handleOption2() {
-        switch (userRole) {
-            case "Applicant":
-                System.out.println("→ Applying for BTO...");
-                // ApplicationController.applyForBTO(username);
-                break;
-            case "ProjectManager":
-                System.out.println("→ Editing existing project...");
-                // ProjectController.editProject();
-                break;
-            case "HDBOfficer":
-                System.out.println("→ Approving/Rejecting applications...");
-                // ApplicationController.reviewApplications();
-                break;
+    private void showHDBOfficerMenu() {
+        System.out.println("1. View All Visible Projects");
+        System.out.println("2. Register to Handle Project");
+        System.out.println("3. View My Project Details");
+        System.out.println("4. View & Reply to Enquiries");
+        System.out.println("5. Manage Flat Booking");
+        System.out.println("6. Generate Receipt");
+        System.out.println("0. Logout");
+
+        int choice = Integer.parseInt(sc.nextLine());
+        switch (choice) {
+            case 1 -> HDBOfficerController.viewAllProjects();
+            case 2 -> HDBOfficerController.registerForProject(nric);
+            case 3 -> HDBOfficerController.viewMyProject(nric);
+            case 4 -> HDBOfficerController.handleEnquiries(nric);
+            case 5 -> HDBOfficerController.manageBooking(nric);
+            case 6 -> HDBOfficerController.generateReceipt(nric);
+            case 0 -> System.exit(0);
+            default -> System.out.println("❌ Invalid choice.");
         }
     }
 
-    // Add more handlers for options 3, 4, etc. based on your roles
+    private void showHDBManagerMenu() {
+        System.out.println("1. Create/Edit/Delete Project");
+        System.out.println("2. Toggle Project Visibility");
+        System.out.println("3. View All Projects / My Projects");
+        System.out.println("4. Handle Officer Registrations");
+        System.out.println("5. Approve/Reject Applications");
+        System.out.println("6. Approve/Reject Withdrawals");
+        System.out.println("7. Generate Reports");
+        System.out.println("8. View & Reply Enquiries");
+        System.out.println("0. Logout");
 
+        int choice = Integer.parseInt(sc.nextLine());
+        switch (choice) {
+            case 1 -> HDBManagerController.manageProjects(nric);
+            case 2 -> HDBManagerController.toggleVisibility(nric);
+            case 3 -> HDBManagerController.viewProjects(nric);
+            case 4 -> HDBManagerController.handleOfficerRegistration(nric);
+            case 5 -> HDBManagerController.processApplications(nric);
+            case 6 -> HDBManagerController.processWithdrawals(nric);
+            case 7 -> HDBManagerController.generateReport(nric);
+            case 8 -> HDBManagerController.handleEnquiries(nric);
+            case 0 -> System.exit(0);
+            default -> System.out.println("❌ Invalid choice.");
+        }
+    }
 }
