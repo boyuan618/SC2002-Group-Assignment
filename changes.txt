@@ -1,0 +1,6 @@
+User entity -> Add field role ("Applicant", "HDBOfficer", "HDBManager")
+Enquiry Entity -> EnquirierNRIC,Project,Title,Detail,Response
+BTOApplication -> ApplicantNRIC,Project,FlatType,Status
+OfficerApplication -> OfficerNRIC,Project,Status
+
+User <- HDBManager (Current ProjectManager + DataAndEnquiryManager) <- ProjectManager (RegistrationAndApprovalManager)

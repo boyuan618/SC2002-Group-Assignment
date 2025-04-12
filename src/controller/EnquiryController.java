@@ -1,5 +1,5 @@
 package controller;
 
-public class EnquiryController {
+public interface EnquiryController {
 
 }
