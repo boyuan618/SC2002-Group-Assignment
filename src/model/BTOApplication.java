@@ -1,7 +1,7 @@
 package model;
 
 public class BTOApplication {
-	private Applicant applicant;
+    private Applicant applicant;
     private BTOProject project;
     private String status; 
     private String flatType; 
@@ -25,7 +25,6 @@ public class BTOApplication {
         }
     }
 
-   
     private boolean isValidStatus(String newStatus) {
         return newStatus.equals("Pending") ||
                newStatus.equals("Successful") ||
@@ -33,6 +32,7 @@ public class BTOApplication {
                newStatus.equals("Booked") ||
                newStatus.equals("Withdrawn");
     }
+
     public Applicant getApplicant() {
         return applicant;
     }
@@ -50,4 +50,4 @@ public class BTOApplication {
     }
 }
 
-}
+
