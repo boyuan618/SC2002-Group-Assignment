@@ -17,6 +17,7 @@ public class BTOProject {
     private String manager;
     private int officerSlot;
     private String[] officerList;
+    public Map<Applicant, String> Applied = new HashMap<>();
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("M/d/yyyy");
 
@@ -117,5 +118,35 @@ public class BTOProject {
     public void setUnits2(int y) { /* for manager's use */
         units2 = y;
     }
+
+    public void editApplied(Applicant a, String type, int change){
+        if(!(change==-1)|(change==1)){
+            System.out.println("Invalid edit! (increment error)"); return;}
+        if(!(type==type1)|(type==type2)){
+            System.out.println("Invalid edit! (flat type error)"); return;}
+        if(change==1){
+            if(type==type1){
+                Applied.put(a,type1);
+                units1-=1;
+                System.out.println("Applicant successfully added to list!");
+                return;}
+            else{
+                Applied.put(a,type2);
+                units2-=1;
+                System.out.println("Applicant successfully added to list!");
+                return;}}
+
+        else{
+            if(!Applied.containsKey(a)){
+                System.out.println("Applicant is already not in project!");
+                return;}
+            if(Applied.get(a)==type1){
+                units1+=1;}
+            else{
+                units2+=1;}
+            Applied.remove(a);
+            System.out.println("Applicant successfully removed from project!");
+            return;}}
+            
 
 }
