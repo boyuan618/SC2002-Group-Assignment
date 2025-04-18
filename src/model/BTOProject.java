@@ -118,33 +118,4 @@ public class BTOProject {
         units2 = y;
     }
 
-    public static BTOProject fromCSV(String[] row) {
-        return new BTOProject(
-                row[0], // Project Name
-                row[1], // Neighborhood
-                row[2], // Type 1
-                Integer.parseInt(row[3]),
-                Integer.parseInt(row[4]),
-                row[5], // Type 2
-                Integer.parseInt(row[6]),
-                Integer.parseInt(row[7]),
-                LocalDate.parse(row[8], FORMATTER),
-                LocalDate.parse(row[9], FORMATTER),
-                row[10], // Manager
-                Integer.parseInt(row[11]),
-                row[12] // Officer list
-        );
-    }
-
-    public String[] toCSV() {
-        return new String[] {
-                projectName, neighborhood, type1, String.valueOf(units1), String.valueOf(price1),
-                type2, String.valueOf(units2), String.valueOf(price2),
-                openDate.format(FORMATTER), closeDate.format(FORMATTER),
-                manager, String.valueOf(officerSlot), String.join(",", officerList) /*
-                                                                                     * to join back the officerList into
-                                                                                     * a string
-                                                                                     */
-        };
-    }
 }

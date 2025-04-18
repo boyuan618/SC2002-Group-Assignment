@@ -1,10 +1,12 @@
 package controller;
 
+import model.BTOApplication;
+import model.Receipt;
 import utils.CSVUtils;
 
 import java.util.*;
 
-public class HDBOfficerController extends ProjectManagerController implements EnquiryInt {
+public class HDBOfficerController {
 
     private static final String PROJECTS_CSV = "data/ProjectList.csv";
     private static final String APPLICATIONS_CSV = "data/OfficerApplications.csv";
@@ -61,50 +63,84 @@ public class HDBOfficerController extends ProjectManagerController implements En
         System.out.println("❌ No assigned project found.");
     }
 
-    // 4. Manage flat booking
-    public static void manageBooking(String nric) {
-        List<String[]> apps = CSVUtils.readCSV(APPLICATIONS_CSV);
-        List<String[]> updated = new ArrayList<>();
+    // 4. View and manage applications
+    public static void manageApplications(String nric) {
         Scanner sc = new Scanner(System.in);
+        List<BTOApplication> updatedApplications = new ArrayList<>();
 
-        for (String[] app : apps) {
-            if (app[1].equalsIgnoreCase("Successful")) {
-                System.out.println("👤 Applicant: " + app[0] + " | Status: " + app[1]);
-                System.out.print("Book flat type (2-Room / 3-Room): ");
+        System.out.println("\n👤 Managing Applications:");
+
+        for (BTOApplication app : CSVUtils.getApplications(APPLICATIONS_CSV)) {
+            if (app.getStatus().equalsIgnoreCase("Successful") && app.getApplicant().getNric().equalsIgnoreCase(nric)) {
+                // Officer's NRIC
+                System.out.println("Applicant: " + app.getApplicant().toString() + " | Status: " + app.getStatus());
+
+                // Handle flat selection for successful applicants
+                System.out.print("Enter flat type to book (2-Room / 3-Room): ");
                 String flatType = sc.nextLine();
-                app[1] = "Booked";
-                if (app.length < 4)
-                    app = Arrays.copyOf(app, 4);
-                app[3] = flatType;
-                updated.add(app);
+                app.updateStatus("Booked"); // Update status to "Booked"
+                app.setFlatType(flatType); // Update flat type
+                updatedApplications.add(app);
 
-                // Generate receipt here as part of booking
+                // Generate receipt for this applicant
                 generateReceipt(app);
             } else {
-                updated.add(app);
+                updatedApplications.add(app);
             }
         }
-        CSVUtils.writeCSV(APPLICATIONS_CSV, updated);
-        System.out.println("✅ Booking updated.");
+
+        CSVUtils.writeApplications(APPLICATIONS_CSV, updatedApplications);
+        System.out.println("✅ Applications updated.");
     }
 
-    // Generate receipt logic extracted for reuse
-    private static void generateReceipt(String[] app) {
-        String[] receipt = new String[] {
-                app[0], // NRIC
-                app[2], // Name
-                app[4], // Age
-                app[5], // Marital Status
-                app[3], // Flat Type
-                app[6] // Project Name
-        };
-        CSVUtils.appendToCSV(RECEIPTS_CSV, receipt);
-        System.out.println("🧾 Receipt generated: " + String.join(", ", receipt));
+    // 5. Generate receipt logic extracted for reuse
+    private static void generateReceipt(BTOApplication btoApplication) {
+        Receipt receipt = Receipt.fromBTOApplication(btoApplication);
+        CSVUtils.appendToCSV(RECEIPTS_CSV, receipt.toCSV());
+        receipt.printReceipt();
+        System.out.println("🧾 Receipt generated.");
     }
 
-    // Enquiry interface implementation
-    @Override
-    public void handleEnquiries(String nric) {
-        EnquiryInt.handleEnquiries(nric);
+    // 6. Respond to enquiry (handling enquiries based on project details)
+    public static void handleEnquiries(String projectName, String enquiryResponse) {
+        // This function will handle and reply to enquiries related to the project being
+        // handled by the officer
+        System.out.println("Enquiry regarding project: " + projectName);
+        System.out.println("Response: " + enquiryResponse);
+        // Add logic to save or process enquiry responses as needed
+    }
+
+    // 7. View project details (for officer's handling)
+    public static void viewProjectDetails(String nric) {
+        List<String[]> projects = CSVUtils.readCSV(PROJECTS_CSV);
+        for (String[] p : projects) {
+            if (p.length >= 11 && p[10] != null && Arrays.asList(p[10].split(";")).contains(nric)) {
+                System.out.println("\n🔍 Project Details for: " + p[0]);
+                System.out.println("Project: " + String.join(" | ", p));
+                return;
+            }
+        }
+        System.out.println("❌ No project assigned.");
+    }
+
+    // 8. Update flat availability for booking (managing flat availability for
+    // booking)
+    public static void updateFlatAvailability(String projectName, String flatType, int unitsBooked) {
+        List<String[]> projects = CSVUtils.readCSV(PROJECTS_CSV);
+        for (String[] project : projects) {
+            if (project[0].equalsIgnoreCase(projectName)) {
+                if (flatType.equalsIgnoreCase("2-Room")) {
+                    int unitsRemaining = Integer.parseInt(project[3]) - unitsBooked;
+                    project[3] = String.valueOf(unitsRemaining);
+                } else if (flatType.equalsIgnoreCase("3-Room")) {
+                    int unitsRemaining = Integer.parseInt(project[6]) - unitsBooked;
+                    project[6] = String.valueOf(unitsRemaining);
+                }
+                CSVUtils.writeCSV(PROJECTS_CSV, projects);
+                System.out.println("✅ Flat availability updated.");
+                return;
+            }
+        }
+        System.out.println("❌ Project not found.");
     }
 }

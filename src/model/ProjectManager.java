@@ -1,5 +1,5 @@
 package model;
 
-public class ProjectManager {
+public class ProjectManager implements EnquiryInt {
 
 }
