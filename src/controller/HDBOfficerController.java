@@ -4,7 +4,7 @@ import utils.CSVUtils;
 
 import java.util.*;
 
-public class HDBOfficerController extends ProjectController implements EnquiryController {
+public class HDBOfficerController extends ProjectManagerController implements EnquiryInt {
 
     private static final String PROJECTS_CSV = "data/ProjectList.csv";
     private static final String APPLICATIONS_CSV = "data/OfficerApplications.csv";
@@ -105,6 +105,6 @@ public class HDBOfficerController extends ProjectController implements EnquiryCo
     // Enquiry interface implementation
     @Override
     public void handleEnquiries(String nric) {
-        EnquiryController.handleEnquiries(nric);
+        EnquiryInt.handleEnquiries(nric);
     }
 }

@@ -1,5 +1,5 @@
 package controller;
 
-public class ProjectController {
+public class ProjectManagerController {
 
 }

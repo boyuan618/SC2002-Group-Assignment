@@ -20,7 +20,8 @@ public class BTOProject {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("M/d/yyyy");
 
-    public BTOProject(){}; /*defaulter object */
+    public BTOProject() {
+    }; /* defaulter object */
 
     public BTOProject(String projectName, String neighborhood, String type1, int units1, int price1,
             String type2, int units2, int price2, LocalDate openDate, LocalDate closeDate,
@@ -36,11 +37,15 @@ public class BTOProject {
         this.openDate = openDate;
         this.closeDate = closeDate;
         this.manager = manager;
-        this.officerSlot = officerSlot; /*i interpreted this as the number of officer slots available */
-        this.officerList = new String[10]; /*10 is the max number of officers as given*/
+        this.officerSlot = officerSlot; /* i interpreted this as the number of officer slots available */
+        this.officerList = new String[10]; /* 10 is the max number of officers as given */
         String[] splitParts = originalList.split(",");
         for (int i = 0; i < splitParts.length && i < 10; i++) {
-            officerList[i] = splitParts[i];} /*to change our csv string input of the officers into a String Array for easier use*/
+            officerList[i] = splitParts[i];
+        } /*
+           * to change our csv string input of the officers into a String Array for easier
+           * use
+           */
     }
 
     public String getProjectName() {
@@ -100,19 +105,18 @@ public class BTOProject {
                 && (today.equals(closeDate) || today.isBefore(closeDate));
     }
 
-    public void addOfficer(String name){ /*for the manager's use */
-        officerList[10-officerSlot]=name;
-        officerSlot-=1;}
+    public void addOfficer(String name) { /* for the manager's use */
+        officerList[10 - officerSlot] = name;
+        officerSlot -= 1;
+    }
 
-    public void setUnits1(int x){ /*for manager's use */
-        units1=x;}
+    public void setUnits1(int x) { /* for manager's use */
+        units1 = x;
+    }
 
-    public void setUnits2(int y){ /*for manager's use */
-        units2=y;}
-
-    
-
-    
+    public void setUnits2(int y) { /* for manager's use */
+        units2 = y;
+    }
 
     public static BTOProject fromCSV(String[] row) {
         return new BTOProject(
@@ -137,7 +141,10 @@ public class BTOProject {
                 projectName, neighborhood, type1, String.valueOf(units1), String.valueOf(price1),
                 type2, String.valueOf(units2), String.valueOf(price2),
                 openDate.format(FORMATTER), closeDate.format(FORMATTER),
-                manager, String.valueOf(officerSlot), String.join(",", officerList) /*to join back the officerList into a string*/
+                manager, String.valueOf(officerSlot), String.join(",", officerList) /*
+                                                                                     * to join back the officerList into
+                                                                                     * a string
+                                                                                     */
         };
     }
 }
