@@ -130,14 +130,14 @@ public class HDBManagerPage {
     private void viewAllProjects() {
         List<BTOProject> all = manager.getAllProjects();
         for (BTOProject p : all) {
-            System.out.println(p);
+            System.out.println(p.toCSV());
         }
     }
 
     private void viewOwnProjects() {
         List<BTOProject> own = manager.getMyProjects();
         for (BTOProject p : own) {
-            System.out.println(p);
+            System.out.println(p.toCSV());
         }
     }
 

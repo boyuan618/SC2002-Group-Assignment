@@ -7,7 +7,6 @@ import model.User;
 import java.util.List;
 
 public class ProjectManagerController extends HDBManagerController {
-    public User user;
 
     public ProjectManagerController(User user) {
         super(user);

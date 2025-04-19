@@ -1,8 +1,5 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -28,7 +25,7 @@ public class HDBManager extends User implements EnquiryInt {
         }
 
         BTOProject newProject = new BTOProject(projectName, neighborhood, type1, units1, price1,
-                type2, units2, price2, openDate, closeDate, "managerName", officerSlot, officerList, visibility);
+                type2, units2, price2, openDate, closeDate, this.getName(), officerSlot, officerList, visibility);
 
         // Save the new project to the CSV file
         BTOProject.addProject(PROJECT_CSV, newProject);
@@ -38,9 +35,9 @@ public class HDBManager extends User implements EnquiryInt {
     // Method to check if the manager is already handling a project within the given
     // application period
     private boolean isManagingAnotherProjectInPeriod(LocalDate openDate, LocalDate closeDate) {
-        List<BTOProject> projects = readProjectsFromCSV();
+        List<BTOProject> projects = BTOProject.getProjects();
         for (BTOProject project : projects) {
-            if (project.getManager().equals("managerName")) {
+            if (project.getManager().equals(this.getName())) {
                 // Check if the current project overlaps with the period of another project
                 if (!openDate.isAfter(project.getCloseDate()) && !closeDate.isBefore(project.getOpenDate())) {
                     return true; // There's an overlap in the application period
@@ -73,10 +70,10 @@ public class HDBManager extends User implements EnquiryInt {
 
     // Method to view only the manager's projects
     public List<BTOProject> viewMyProjects() {
-        List<BTOProject> projects = readProjectsFromCSV();
+        List<BTOProject> projects = BTOProject.getProjects();
         List<BTOProject> myProjects = new ArrayList<>();
         for (BTOProject project : projects) {
-            if (project.getManager().equals("managerName")) {
+            if (project.getManager().equals(this.getName())) {
                 myProjects.add(project);
             }
         }
@@ -85,46 +82,13 @@ public class HDBManager extends User implements EnquiryInt {
 
     // Helper method to retrieve a project from CSV by name
     private BTOProject getProjectFromCSV(String projectName) {
-        List<BTOProject> projects = readProjectsFromCSV();
+        List<BTOProject> projects = BTOProject.getProjects();
         for (BTOProject project : projects) {
             if (project.getProjectName().equals(projectName)) {
                 return project;
             }
         }
         return null;
-    }
-
-    // Helper method to read projects from the CSV file
-    private List<BTOProject> readProjectsFromCSV() {
-        List<BTOProject> projects = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(PROJECT_CSV))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 13) {
-                    String projectName = parts[0];
-                    String neighborhood = parts[1];
-                    String type1 = parts[2];
-                    int units1 = Integer.parseInt(parts[3]);
-                    int price1 = Integer.parseInt(parts[4]);
-                    String type2 = parts[5];
-                    int units2 = Integer.parseInt(parts[6]);
-                    int price2 = Integer.parseInt(parts[7]);
-                    LocalDate openDate = LocalDate.parse(parts[8]);
-                    LocalDate closeDate = LocalDate.parse(parts[9]);
-                    String manager = parts[10];
-                    int officerSlot = Integer.parseInt(parts[11]);
-                    String officerList = parts[12];
-                    String visibility = parts[13];
-
-                    BTOProject project = new BTOProject(projectName, neighborhood, type1, units1, price1,
-                            type2, units2, price2, openDate, closeDate, manager, officerSlot, officerList, visibility);
-                    projects.add(project);
-                }
-            }
-        } catch (IOException e) {
-        }
-        return projects;
     }
 
     public void viewAndReplyEnquiries() {
