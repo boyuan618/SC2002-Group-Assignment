@@ -29,7 +29,7 @@ public class BTOProject {
     private String visibility;
 
     private static final String PROJECTS_CSV = "data/ProjectList.csv";
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("mm/dd/yyyy");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/dd/yyyy");
 
     public BTOProject() {
     }; /* defaulter object */
@@ -144,25 +144,24 @@ public class BTOProject {
 
         for (String[] row : rows) {
             try {
-                if (row.length >= 14) {
-                    BTOProject project = new BTOProject(
-                            row[0], // projectName
-                            row[1], // neighborhood
-                            row[2], // type1
-                            Integer.parseInt(row[3]), // units1
-                            Integer.parseInt(row[4]), // price1
-                            row[5], // type2
-                            Integer.parseInt(row[6]), // units2
-                            Integer.parseInt(row[7]), // price2
-                            LocalDate.parse(row[8], formatter), // openDate
-                            LocalDate.parse(row[9], formatter), // closeDate
-                            row[10], // manager
-                            Integer.parseInt(row[11]), // officerSlot
-                            row[12], // originalList
-                            row[13] // visibility
-                    );
-                    projectList.add(project);
-                }
+                BTOProject project = new BTOProject(
+                        row[0], // projectName
+                        row[1], // neighborhood
+                        row[2], // type1
+                        Integer.parseInt(row[3]), // units1
+                        Integer.parseInt(row[4]), // price1
+                        row[5], // type2
+                        Integer.parseInt(row[6]), // units2
+                        Integer.parseInt(row[7]), // price2
+                        LocalDate.parse(row[8], formatter), // openDate
+                        LocalDate.parse(row[9], formatter), // closeDate
+                        row[10], // manager
+                        Integer.parseInt(row[11]), // officerSlot
+                        row[12], // originalList
+                        row[13] // visibility
+                );
+                projectList.add(project);
+
             } catch (Exception e) {
                 System.out.println("⚠️ Error parsing project row: " + String.join(",", row));
             }
@@ -253,7 +252,7 @@ public class BTOProject {
                 closeDate.toString(),
                 manager,
                 Integer.toString(officerSlot),
-                String.join(";", officerList), // Officers separated by semicolon
+                String.join(",", officerList), // Officers separated by semicolon
                 visibility);
     }
 

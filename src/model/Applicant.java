@@ -52,11 +52,11 @@ public class Applicant {
     public static Applicant getApplicantByNRIC(String nric) {
         List<String[]> users = CSVUtils.readCSV("data/users.csv");
         for (String[] row : users) {
-            if (row[0].equals(nric)) {
-                int age = Integer.parseInt(row[1]);
-                String password = row[2];
+            if (row[1].equals(nric)) {
+                String name = row[0];
+                int age = Integer.parseInt(row[2]);
                 String maritalStatus = row[3];
-                return new Applicant(nric, password, age, maritalStatus);
+                return new Applicant(name, nric, age, maritalStatus);
             }
         }
         return null; // not found
@@ -118,7 +118,7 @@ public class Applicant {
     }
 
     public void submitEnquiry(String project, String title, String detail) {
-        int id = Enquiry.getEnquiries().size();
+        int id = Enquiry.getEnquiries().get(Enquiry.getEnquiries().size() - 1).getId() + 1;
         Enquiry enquiry = new Enquiry(id, getNric(), project, title, detail, "");
         Enquiry.appendEnquiry(enquiry);
     }

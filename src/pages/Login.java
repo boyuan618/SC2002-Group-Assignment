@@ -32,7 +32,7 @@ public class Login {
     }
 
     private static void launchRoleInterface(User user) {
-        switch (user.getRole().toLowerCase()) {
+        switch (user.getRole()) {
             case "Applicant":
                 ApplicantController applicant = new ApplicantController(user);
                 ApplicantPage applicantPage = new ApplicantPage(applicant);

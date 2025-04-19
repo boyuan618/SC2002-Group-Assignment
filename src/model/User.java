@@ -59,11 +59,13 @@ public class User {
         for (String[] userData : usersData) {
             if (userData.length >= 6) {
                 String userNRIC = userData[1];
-                String userPassword = userData[5];
+                String userPassword = userData[4];
+                // System.out.println(userNRIC + " " + userPassword);
+                // System.out.println(NRIC + " " + password);
 
                 if (userNRIC.equals(NRIC) && userPassword.equals(password)) {
                     // Return the user object (you can create the appropriate User subclass here)
-                    return new User(userData[0], userNRIC, userPassword, Integer.parseInt(userData[3]), userData[4],
+                    return new User(userData[0], userNRIC, userPassword, Integer.parseInt(userData[2]), userData[3],
                             userData[5]);
                 }
             }

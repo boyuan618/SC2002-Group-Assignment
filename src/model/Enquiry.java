@@ -1,7 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import utils.CSVUtils;
 
 public class Enquiry {
@@ -22,6 +21,10 @@ public class Enquiry {
         this.title = title;
         this.detail = detail;
         this.response = response;
+    }
+
+    public int getId() {
+        return enquiryid;
     }
 
     public String getEnquirerNRIC() {
@@ -57,7 +60,7 @@ public class Enquiry {
     }
 
     public String[] toCSVRow() {
-        return new String[] { enquirerNRIC, projectName, title, detail, response };
+        return new String[] { String.valueOf(enquiryid), enquirerNRIC, projectName, title, detail, response };
     }
 
     // Add to CSVUtils
@@ -72,6 +75,7 @@ public class Enquiry {
     }
 
     public static void writeEnquiries(List<Enquiry> enquirers) {
+        enquirers.sort(Comparator.comparingInt(Enquiry::getId));
         List<String[]> rows = new ArrayList<>();
         for (Enquiry e : enquirers) {
             rows.add(e.toCSVRow());

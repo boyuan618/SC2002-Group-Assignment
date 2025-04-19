@@ -55,7 +55,7 @@ public class ApplicantPage {
         if (availableProjects != null && !availableProjects.isEmpty()) {
             System.out.println("Available Projects:");
             for (BTOProject project : availableProjects) {
-                System.out.println(project.getProjectName() + " - " + project.getVisibility());
+                System.out.println(project.getProjectName() + " - " + project.toCSV());
             }
         } else {
             System.out.println("No available projects found or you are not eligible.");
@@ -101,40 +101,14 @@ public class ApplicantPage {
         }
     }
 
-    // View available actions related to enquiries
-    public void manageEnquiries() {
-        System.out.println("1. View my enquiries");
-        System.out.println("2. Submit a new enquiry");
-        System.out.println("3. Edit an enquiry");
-        System.out.println("4. Delete an enquiry");
-        System.out.print("Choose an option: ");
-        int choice = Integer.parseInt(scanner.nextLine());
-
-        switch (choice) {
-            case 1:
-                viewMyEnquiries();
-                break;
-            case 2:
-                submitEnquiry();
-                break;
-            case 3:
-                editEnquiry();
-                break;
-            case 4:
-                deleteEnquiry();
-                break;
-            default:
-                System.out.println("Invalid option.");
-        }
-    }
-
     // View the applicant's existing enquiries
     private void viewMyEnquiries() {
         List<Enquiry> enquiries = controller.viewMyEnquiries();
         if (enquiries != null && !enquiries.isEmpty()) {
             System.out.println("Your Enquiries:");
             for (Enquiry enquiry : enquiries) {
-                System.out.println("Project: " + enquiry.getProjectName() + " | Title: " + enquiry.getTitle()
+                System.out.println("ID: " + enquiry.getId() + " Project: " + enquiry.getProjectName() + " | Title: "
+                        + enquiry.getTitle()
                         + " | Details: " + enquiry.getDetail() + " | Response: " + enquiry.getResponse());
             }
         } else {
