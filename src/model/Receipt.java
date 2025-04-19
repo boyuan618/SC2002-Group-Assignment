@@ -99,7 +99,7 @@ public class Receipt {
                 application.getApplicant().getAge(),
                 application.getApplicant().getMaritalStatus(),
                 application.getFlatType(),
-                application.getProject().getProjectName(),
-                application.getProject().getNeighborhood());
+                application.getProjectObject().getProjectName(),
+                application.getProjectObject().getNeighborhood());
     }
 }

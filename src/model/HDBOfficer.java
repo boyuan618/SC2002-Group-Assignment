@@ -1,18 +1,25 @@
 package model;
 
-import utils.CSVUtils;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 public class HDBOfficer extends Applicant implements EnquiryInt {
     private BTOProject projectAssigned;
-    private boolean registrationApproved;
 
     // Constructor
-    public HDBOfficer(String nric, int age, String password, String maritalStatus) {
-        super(nric, password, age, maritalStatus);
-        this.projectAssigned = null; // No project assigned initially
-        this.registrationApproved = false; // Default value for registration approval
+    public HDBOfficer(String name, String nric, int age, String maritalStatus) {
+        super(name, nric, age, maritalStatus);
+        this.projectAssigned = null;
+
+        List<BTOProject> projects = BTOProject.getProjects();
+        for (BTOProject project : projects) {
+
+            if (Arrays.asList(project.getOfficerList()).contains(name)) {
+                this.projectAssigned = project;
+            }
+        }
+
     }
 
     // Getters and setters
@@ -22,14 +29,6 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
 
     public void setProjectAssigned(BTOProject projectAssigned) {
         this.projectAssigned = projectAssigned;
-    }
-
-    public boolean isRegistrationApproved() {
-        return registrationApproved;
-    }
-
-    public void setRegistrationApproved(boolean registrationApproved) {
-        this.registrationApproved = registrationApproved;
     }
 
     // Method to check if an officer can register for a project
@@ -44,11 +43,11 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
         }
 
         // Ensure the officer has not already applied for this project as an applicant
-        List<BTOApplication> applications = CSVUtils.getApplications("data/applications.csv");
+        List<BTOApplication> applications = BTOApplication.getApplications();
 
         for (BTOApplication app : applications) {
-            if (app.getApplicant().getNric().equals(this.getNric())
-                    && app.getProject().getProjectName().equals(project.getProjectName())) {
+            if (app.getApplicantNRIC().equals(this.getNric())
+                    && app.getProjectName().equals(project.getProjectName())) {
                 System.out.println("You have already applied for this project as an applicant.");
                 return false;
             }
@@ -71,7 +70,7 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
 
     // Method to view project details that the officer is handling
     @Override
-    public void viewHandledProjectDetails() {
+    public void viewAllProjectDetails() {
         if (projectAssigned != null) {
             System.out.println("\n===== Officer Handling Project =====");
             System.out.println("Project Name       : " + projectAssigned.getProjectName());
@@ -103,7 +102,8 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
                 projectAssigned.setUnits2(projectAssigned.getUnits2() - 1);
             }
             // Update the applicant's status to "Booked"
-            application.updateStatus("Booked");
+            application.setStatus("Booked");
+            BTOApplication.updateBTOApplication(application);
 
             // Create and generate a receipt for the applicant
             Receipt.fromBTOApplication(application).printReceipt();
@@ -113,14 +113,4 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
         }
     }
 
-    // Method to check if the officer has been approved for project registration
-    public boolean isApprovedForProject() {
-        return registrationApproved;
-    }
-
-    // Method to approve registration (called by the manager)
-    public void approveRegistration() {
-        this.registrationApproved = true;
-        System.out.println("Your registration as an HDB Officer for the project has been approved.");
-    }
 }

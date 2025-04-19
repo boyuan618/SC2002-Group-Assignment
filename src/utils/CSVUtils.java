@@ -1,16 +1,8 @@
 package utils;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import model.Applicant;
-import model.BTOApplication;
-import model.BTOProject;
-
-import controller.ProjectController;
 
 public class CSVUtils {
 
@@ -71,56 +63,6 @@ public class CSVUtils {
                 data.set(i, newRow);
                 break;
             }
-        }
-
-        writeCSV(filepath, data);
-    }
-
-    public static List<BTOApplication> getApplications(String filepath) {
-        List<BTOApplication> applications = new ArrayList<>();
-        List<String[]> rows = readCSV(filepath);
-
-        for (String[] row : rows) {
-            if (row.length >= 16) {
-                try {
-                    String nric = row[0];
-                    String projectName = row[1];
-                    String status = row[2];
-                    String flatType = row[3];
-
-                    // ApplicantNRIC,Project,FlatType,Status
-                    BTOProject project = ProjectController.findProjectByName(projectName);
-
-                    Applicant applicant = Applicant.getApplicantByNRIC(nric);
-                    if (applicant == null) {
-                        System.out.println("⚠️ Applicant with NRIC " + nric + " not found.");
-                        continue;
-                    }
-
-                    BTOApplication application = new BTOApplication(applicant, project, status);
-                    application.setFlatType(flatType);
-
-                    applications.add(application);
-                } catch (Exception e) {
-                    System.out.println("❌ Error parsing row: " + Arrays.toString(row));
-                }
-            }
-        }
-
-        return applications;
-    }
-
-    public static void writeApplications(String filepath, List<BTOApplication> applications) {
-        List<String[]> data = new ArrayList<>();
-
-        for (BTOApplication app : applications) {
-            String[] row = new String[] {
-                    app.getApplicant().getNric(),
-                    app.getProject().getProjectName(),
-                    app.getStatus(),
-                    app.getFlatType() == null ? "" : app.getFlatType()
-            };
-            data.add(row);
         }
 
         writeCSV(filepath, data);
