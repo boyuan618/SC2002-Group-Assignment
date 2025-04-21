@@ -5,6 +5,7 @@ import model.ProjectManager;
 import model.User;
 
 import java.util.List;
+import java.util.Scanner;
 
 public class ProjectManagerController extends HDBManagerController {
 
@@ -46,8 +47,8 @@ public class ProjectManagerController extends HDBManagerController {
         projectManager.approveRejectWithdrawal(applicantNRIC, approve);
     }
 
-    public void manageEnquiries() {
-        projectManager.viewAndReplyEnquiries();
+    public void manageEnquiries(Scanner sc) {
+        projectManager.viewAndReplyEnquiries(sc);
     }
 
 }

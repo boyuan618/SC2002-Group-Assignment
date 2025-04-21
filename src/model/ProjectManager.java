@@ -11,21 +11,38 @@ public class ProjectManager extends HDBManager {
 
     public ProjectManager(String name, String nric, String password, int age, String maritalStatus) {
         super(name, nric, password, age, maritalStatus);
+        this.project = null;
+
+        List<BTOProject> projects = BTOProject.getProjects();
+        for (BTOProject projectlist : projects) {
+            if (Arrays.asList(projectlist.getManager()).contains(name)) {
+                this.project = projectlist;
+                break;
+            }
+        }
 
     }
 
     // View pending officer registrations for this project
     public void viewPendingOfficerRegistrations() {
+        if (project == null) {
+            System.out.println("You are not in charge of any project!");
+            return;
+        }
         List<OfficerApplication> officerApplications = OfficerApplication.readOfficerApplications();
         for (OfficerApplication officerApp : officerApplications) {
             if (officerApp.getProject().equals(project.getProjectName()) && officerApp.getStatus().equals("Pending")) {
-                System.out.println(officerApp);
+                System.out.println(officerApp.toString());
             }
         }
     }
 
     // Approve or reject officer registration
     public void approveRejectOfficer(String officerNRIC, boolean approve) {
+        if (project == null) {
+            System.out.println("You are not in charge of any project!");
+            return;
+        }
         List<OfficerApplication> officerApplications = OfficerApplication.readOfficerApplications();
         for (OfficerApplication officerApp : officerApplications) {
             if (officerApp.getProject().equals(project.getProjectName())
@@ -33,9 +50,11 @@ public class ProjectManager extends HDBManager {
                 if (approve) {
                     if (project.getOfficerSlot() > 0) {
                         officerApp.setStatus("Approved");
-                        project.addOfficer(this.name);
+                        project.addOfficer(HDBOfficer.getApplicantByNRIC(officerNRIC).getName());
+                        BTOProject.editProject(project);
                         OfficerApplication.updateOfficerApplication(officerApp); // Update the application status in CSV
                         System.out.println("Officer approved for the project.");
+
                     } else {
                         System.out.println("No officer slots available.");
                     }
@@ -52,6 +71,10 @@ public class ProjectManager extends HDBManager {
 
     // Approve or reject an applicant's BTO application
     public void approveRejectApplication(String applicantNRIC, String flatType, boolean approve) {
+        if (project == null) {
+            System.out.println("You are not in charge of any project!");
+            return;
+        }
         List<BTOApplication> applications = BTOApplication.getApplications(); // Assuming this reads
                                                                               // from
         // BTOApplications.csv
@@ -84,6 +107,10 @@ public class ProjectManager extends HDBManager {
 
     // Approve or reject withdrawal request from an applicant
     public void approveRejectWithdrawal(String applicantNRIC, boolean approve) {
+        if (project == null) {
+            System.out.println("You are not in charge of any project!");
+            return;
+        }
         List<BTOApplication> applications = BTOApplication.getApplications();
         for (BTOApplication app : applications) {
             if (app.getProjectName().equals(project.getProjectName()) && app.getApplicantNRIC().equals(applicantNRIC)) {

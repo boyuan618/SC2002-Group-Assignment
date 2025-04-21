@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import utils.CSVUtils;
@@ -21,11 +22,11 @@ public class BTOProject {
     private String type2;
     private int units2;
     private int price2;
-    private LocalDate openDate;
-    private LocalDate closeDate;
+    private String openDate;
+    private String closeDate;
     private String manager;
     private int officerSlot;
-    private String[] officerList;
+    private ArrayList<String> officerList;
     private String visibility;
 
     private static final String PROJECTS_CSV = "data/ProjectList.csv";
@@ -35,7 +36,7 @@ public class BTOProject {
     }; /* defaulter object */
 
     public BTOProject(String projectName, String neighborhood, String type1, int units1, int price1,
-            String type2, int units2, int price2, LocalDate openDate, LocalDate closeDate,
+            String type2, int units2, int price2, String openDate, String closeDate,
             String manager, int officerSlot, String originalList, String visibility) {
         this.projectName = projectName;
         this.neighborhood = neighborhood;
@@ -48,16 +49,10 @@ public class BTOProject {
         this.openDate = openDate;
         this.closeDate = closeDate;
         this.manager = manager;
-        this.officerSlot = officerSlot; /* i interpreted this as the number of officer slots available */
-        this.officerList = new String[10]; /* 10 is the max number of officers as given */
+        this.officerSlot = officerSlot;
         this.visibility = visibility;
-        String[] splitParts = originalList.split(",");
-        for (int i = 0; i < splitParts.length && i < 10; i++) {
-            officerList[i] = splitParts[i];
-        } /*
-           * to change our csv string input of the officers into a String Array for easier
-           * use
-           */
+        originalList = originalList.replaceAll("^\"|\"$", "");
+        this.officerList = new ArrayList<>(Arrays.asList(originalList.split(",")));
     }
 
     public String getProjectName() {
@@ -68,8 +63,16 @@ public class BTOProject {
         return neighborhood;
     }
 
+    public void setNeighborhood(String neighoburhood) {
+        this.neighborhood = neighoburhood;
+    }
+
     public String getType1() {
         return type1;
+    }
+
+    public void setType1(String type1) {
+        this.type1 = type1;
     }
 
     public int getUnits1() {
@@ -80,8 +83,16 @@ public class BTOProject {
         return price1;
     }
 
+    public void setPrice1(int price1) {
+        this.price1 = price1;
+    }
+
     public String getType2() {
         return type2;
+    }
+
+    public void setType2(String type2) {
+        this.type2 = type2;
     }
 
     public int getUnits2() {
@@ -92,33 +103,63 @@ public class BTOProject {
         return price2;
     }
 
-    public LocalDate getOpenDate() {
+    public void setPrice2(int price2) {
+        this.price2 = price2;
+    }
+
+    public String getOpenDate() {
         return openDate;
     }
 
-    public LocalDate getCloseDate() {
+    public void setOpenDate(String opendate) {
+        this.openDate = opendate;
+    }
+
+    public String getCloseDate() {
         return closeDate;
+    }
+
+    public void setClosedate(String closedate) {
+        this.closeDate = closedate;
     }
 
     public String getManager() {
         return manager;
     }
 
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
     public int getOfficerSlot() {
         return officerSlot;
     }
 
-    public String[] getOfficerList() {
-        return officerList;
+    public void setOfficerSlot(int slots) {
+        this.officerSlot = slots;
+    }
+
+    public String getOfficerList() {
+        String[] filteredlist = officerList.stream()
+                .filter(s -> s != null && !s.trim().isEmpty())
+                .toArray(String[]::new);
+        return String.join(",", filteredlist);
+    }
+
+    public void setOfficerList(String officerlist) {
+        String[] officers = officerlist.split("\\s*,\\s*"); // trim spaces around commas
+        this.officerList = new ArrayList<>(Arrays.asList(officers));
     }
 
     public boolean isWithinApplicationPeriod(LocalDate today) {
-        return (today.equals(openDate) || today.isAfter(openDate))
-                && (today.equals(closeDate) || today.isBefore(closeDate));
+        return (today.equals(LocalDate.parse(openDate, formatter))
+                || today.isAfter(LocalDate.parse(openDate, formatter)))
+                && (today.equals(LocalDate.parse(closeDate, formatter))
+                        || today.isBefore(LocalDate.parse(closeDate, formatter)));
     }
 
     public void addOfficer(String name) { /* for the manager's use */
-        officerList[10 - officerSlot] = name;
+        officerList.add(name);
         officerSlot -= 1;
     }
 
@@ -153,8 +194,8 @@ public class BTOProject {
                         row[5], // type2
                         Integer.parseInt(row[6]), // units2
                         Integer.parseInt(row[7]), // price2
-                        LocalDate.parse(row[8], formatter), // openDate
-                        LocalDate.parse(row[9], formatter), // closeDate
+                        row[8], // openDate
+                        row[9], // closeDate
                         row[10], // manager
                         Integer.parseInt(row[11]), // officerSlot
                         row[12], // originalList
@@ -162,31 +203,67 @@ public class BTOProject {
                 );
                 projectList.add(project);
 
-            } catch (Exception e) {
-                System.out.println("⚠️ Error parsing project row: " + String.join(",", row));
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️ Error parsing project row: " + String.join(",", row) + " NumberFormatError");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println("⚠️ Error parsing project row: " + String.join(",", row) + " Array out of bounds");
             }
         }
 
         return projectList;
     }
 
-    public static void addProject(String filepath, BTOProject project) {
-        try (FileWriter fw = new FileWriter(filepath, true); BufferedWriter bw = new BufferedWriter(fw)) {
-            bw.write(project.toCSV());
+    public static void addProject(BTOProject project) {
+        try (FileWriter fw = new FileWriter(PROJECTS_CSV, true); BufferedWriter bw = new BufferedWriter(fw)) {
+            String[] filteredlist = project.officerList.stream()
+                    .filter(s -> s != null && !s.trim().isEmpty())
+                    .toArray(String[]::new);
+            bw.write(String.join(",",
+                    project.projectName,
+                    project.neighborhood,
+                    project.type1,
+                    Integer.toString(project.units1),
+                    Integer.toString(project.price1),
+                    project.type2,
+                    Integer.toString(project.units2),
+                    Integer.toString(project.price2),
+                    project.openDate,
+                    project.closeDate,
+                    project.manager,
+                    Integer.toString(project.officerSlot),
+                    "\"" + String.join(",", filteredlist) + "\"", // Special to add ""
+                    project.visibility));
             bw.newLine();
         } catch (IOException e) {
         }
     }
 
-    public static void editProject(String filepath, BTOProject updatedProject) {
+    public static void editProject(BTOProject updatedProject) {
         List<String> lines = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(PROJECTS_CSV))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts[0].equals(updatedProject.getProjectName())) {
-                    lines.add(updatedProject.toCSV());
+                    String[] filteredlist = updatedProject.officerList.stream()
+                            .filter(s -> s != null && !s.trim().isEmpty())
+                            .toArray(String[]::new);
+                    lines.add(String.join(",",
+                            updatedProject.projectName,
+                            updatedProject.neighborhood,
+                            updatedProject.type1,
+                            Integer.toString(updatedProject.units1),
+                            Integer.toString(updatedProject.price1),
+                            updatedProject.type2,
+                            Integer.toString(updatedProject.units2),
+                            Integer.toString(updatedProject.price2),
+                            updatedProject.openDate,
+                            updatedProject.closeDate,
+                            updatedProject.manager,
+                            Integer.toString(updatedProject.officerSlot),
+                            "\"" + String.join(",", filteredlist) + "\"", // Special to add ""
+                            updatedProject.visibility));
                 } else {
                     lines.add(line);
                 }
@@ -195,7 +272,7 @@ public class BTOProject {
             return;
         }
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filepath))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(PROJECTS_CSV))) {
             for (String l : lines) {
                 bw.write(l);
                 bw.newLine();
@@ -204,10 +281,10 @@ public class BTOProject {
         }
     }
 
-    public static void deleteProject(String filepath, String projectName) {
+    public static void deleteProject(String projectName) {
         List<String> lines = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(PROJECTS_CSV))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -219,7 +296,7 @@ public class BTOProject {
             return;
         }
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filepath))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(PROJECTS_CSV))) {
             for (String l : lines) {
                 bw.write(l);
                 bw.newLine();
@@ -239,6 +316,9 @@ public class BTOProject {
     }
 
     public String toCSV() {
+        String[] filteredlist = officerList.stream()
+                .filter(s -> s != null && !s.trim().isEmpty())
+                .toArray(String[]::new);
         return String.join(",",
                 projectName,
                 neighborhood,
@@ -248,11 +328,11 @@ public class BTOProject {
                 type2,
                 Integer.toString(units2),
                 Integer.toString(price2),
-                openDate.toString(),
-                closeDate.toString(),
+                openDate,
+                closeDate,
                 manager,
                 Integer.toString(officerSlot),
-                String.join(",", officerList), // Officers separated by semicolon
+                String.join(",", filteredlist), // Officers separated by semicolon
                 visibility);
     }
 

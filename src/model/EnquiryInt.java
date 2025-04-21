@@ -21,15 +21,14 @@ public interface EnquiryInt {
             System.out.println("Officer Slots      : " + p.getOfficerSlot());
 
             // Join non-null officer names from the array
-            String[] officerList = p.getOfficerList();
-            String officers = String.join(", ", officerList).replaceAll(", null", "");
+            String officerList = p.getOfficerList();
+            String officers = officerList;
             System.out.println("Assigned Officers  : " + officers);
         }
     }
 
-    default void viewAndReplyEnquiries(String assignedProject) {
+    default void viewAndReplyEnquiries(Scanner sc, String assignedProject) {
         List<Enquiry> enquiries = Enquiry.getEnquiries();
-        Scanner sc = new Scanner(System.in);
         boolean found = false;
 
         for (int i = 0; i < enquiries.size(); i++) {
@@ -58,7 +57,6 @@ public interface EnquiryInt {
             System.out.println("No enquiries found for project: " + assignedProject);
         }
 
-        sc.close();
     }
 
     default void viewallEnquiries(String assignedProject) {

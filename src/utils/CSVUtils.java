@@ -29,7 +29,6 @@ public class CSVUtils {
             }
         } catch (IOException e) {
             System.out.println("Error reading CSV file: " + filepath);
-            e.printStackTrace();
         }
 
         return data;
@@ -96,7 +95,6 @@ public class CSVUtils {
             bw.write(System.lineSeparator());
         } catch (IOException e) {
             System.out.println("Error appending to CSV file: " + filepath);
-            e.printStackTrace();
         }
     }
 

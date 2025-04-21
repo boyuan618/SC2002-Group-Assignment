@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import utils.CSVUtils;
+
 public class HDBOfficer extends Applicant implements EnquiryInt {
     private BTOProject projectAssigned;
 
@@ -15,8 +17,9 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
         List<BTOProject> projects = BTOProject.getProjects();
         for (BTOProject project : projects) {
 
-            if (Arrays.asList(project.getOfficerList()).contains(name)) {
+            if (Arrays.asList(project.getOfficerList().split(",")).contains(name)) {
                 this.projectAssigned = project;
+                break;
             }
         }
 
@@ -52,6 +55,8 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
                 return false;
             }
         }
+        OfficerApplication
+                .createApplication(new OfficerApplication(this.getNric(), project.getProjectName(), "Pending"));
 
         return true;
     }
@@ -111,6 +116,19 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
         } else {
             System.out.println("This application is not successful yet.");
         }
+    }
+
+    public static Applicant getApplicantByNRIC(String nric) {
+        List<String[]> users = CSVUtils.readCSV("data/users.csv");
+        for (String[] row : users) {
+            if (row[1].equals(nric)) {
+                String name = row[0];
+                int age = Integer.parseInt(row[2]);
+                String maritalStatus = row[3];
+                return new HDBOfficer(name, nric, age, maritalStatus);
+            }
+        }
+        return null; // not found
     }
 
 }

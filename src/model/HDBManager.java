@@ -1,11 +1,13 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class HDBManager extends User implements EnquiryInt {
 
     public static final String PROJECT_CSV = "data/ProjectList.csv"; // Path to your project CSV file
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/dd/yyyy");
 
     public HDBManager(String name, String nric, String password, int age, String maritalStatus) {
         super(name, nric, password, age, maritalStatus, "HDBManager");
@@ -14,12 +16,13 @@ public class HDBManager extends User implements EnquiryInt {
 
     // Method to create a new project listing and save it to CSV
     public BTOProject createListing(String projectName, String neighborhood, String type1, int units1, int price1,
-            String type2, int units2, int price2, LocalDate openDate, LocalDate closeDate,
+            String type2, int units2, int price2, String openDate, String closeDate,
             int officerSlot, String officerList, String visibility) {
 
         // Check if the manager is already managing a project within the application
         // period
-        if (isManagingAnotherProjectInPeriod(openDate, closeDate)) {
+        if (isManagingAnotherProjectInPeriod(LocalDate.parse(openDate, formatter),
+                LocalDate.parse(closeDate, formatter))) {
             System.out.println("You are already managing a project in this application period.");
             return null;
         }
@@ -28,7 +31,7 @@ public class HDBManager extends User implements EnquiryInt {
                 type2, units2, price2, openDate, closeDate, this.getName(), officerSlot, officerList, visibility);
 
         // Save the new project to the CSV file
-        BTOProject.addProject(PROJECT_CSV, newProject);
+        BTOProject.addProject(newProject);
         return newProject;
     }
 
@@ -39,7 +42,8 @@ public class HDBManager extends User implements EnquiryInt {
         for (BTOProject project : projects) {
             if (project.getManager().equals(this.getName())) {
                 // Check if the current project overlaps with the period of another project
-                if (!openDate.isAfter(project.getCloseDate()) && !closeDate.isBefore(project.getOpenDate())) {
+                if (!openDate.isAfter(LocalDate.parse(project.getCloseDate(), formatter))
+                        && !closeDate.isBefore(LocalDate.parse(project.getOpenDate(), formatter))) {
                     return true; // There's an overlap in the application period
                 }
             }
@@ -48,15 +52,16 @@ public class HDBManager extends User implements EnquiryInt {
     }
 
     // Method to edit an existing project listing and update the CSV file
-    public void editListing(BTOProject updatedProject) {
-        // Update project details in the CSV file
-        BTOProject.editProject(PROJECT_CSV, updatedProject);
+    public void editProject(BTOProject project) {
+
+        BTOProject.editProject(project);
+        System.out.println("✅ Project updated successfully.");
     }
 
     // Method to delete a project from the CSV file
     public void deleteListing(String projectName) {
         // Delete the project from the CSV file
-        BTOProject.deleteProject(PROJECT_CSV, projectName);
+        BTOProject.deleteProject(projectName);
     }
 
     // Method to toggle the visibility of a project
@@ -64,7 +69,7 @@ public class HDBManager extends User implements EnquiryInt {
         BTOProject project = getProjectFromCSV(projectName);
         if (project != null) {
             project.setVisibility(visibility);
-            editListing(project); // Update project in the CSV
+            editProject(project); // Update project in the CSV
         }
     }
 
@@ -91,9 +96,8 @@ public class HDBManager extends User implements EnquiryInt {
         return null;
     }
 
-    public void viewAndReplyEnquiries() {
+    public void viewAndReplyEnquiries(Scanner sc) {
         List<Enquiry> enquiries = Enquiry.getEnquiries();
-        Scanner sc = new Scanner(System.in);
 
         for (int i = 0; i < enquiries.size(); i++) {
             Enquiry e = enquiries.get(i);
@@ -113,8 +117,7 @@ public class HDBManager extends User implements EnquiryInt {
         }
 
         Enquiry.writeEnquiries(enquiries);
-        System.out.println("✅ Replies saved.");
+        System.out.println("Replies saved.");
 
-        sc.close();
     }
 }

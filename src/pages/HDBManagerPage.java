@@ -3,7 +3,6 @@ package pages;
 import controller.ProjectManagerController;
 import model.BTOProject;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,47 +26,27 @@ public class HDBManagerPage {
             System.out.println("5. View My Projects");
             System.out.println("6. View Officer Applications");
             System.out.println("7. Approve/Reject Officer Application");
-            System.out.println("8. View Enquiries");
+            System.out.println("8. Manage Enquiries");
             System.out.println("0. Logout");
             System.out.print("Enter your choice: ");
             choice = Integer.parseInt(scanner.nextLine());
 
             switch (choice) {
-                case 1:
-                    createProject();
-                    break;
-                case 2:
-                    editProject();
-                    break;
-                case 3:
-                    deleteProject();
-                    break;
-                case 4:
-                    viewAllProjects();
-                    break;
-                case 5:
-                    viewOwnProjects();
-                    break;
-                case 6:
-                    viewOfficerApplications();
-                    break;
-                case 7:
-                    approveRejectOfficer();
-                    break;
-                case 8:
-                    ManageEnquiries();
-                    break;
-                case 0:
-                    System.out.println("Logging out...");
-                    break;
-                default:
-                    System.out.println("Invalid choice. Try again.");
+                case 1 -> createProject();
+                case 2 -> editProject();
+                case 3 -> deleteProject();
+                case 4 -> viewAllProjects();
+                case 5 -> viewOwnProjects();
+                case 6 -> viewOfficerApplications();
+                case 7 -> approveRejectOfficer();
+                case 8 -> ManageEnquiries(scanner);
+                case 0 -> System.out.println("Logging out...");
+                default -> System.out.println("Invalid choice. Try again.");
             }
         } while (choice != 0);
     }
 
     private void createProject() {
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter project name:");
         String name = scanner.nextLine();
@@ -89,16 +68,16 @@ public class HDBManagerPage {
         System.out.println("Enter price for type 2:");
         int price2 = Integer.parseInt(scanner.nextLine());
 
-        System.out.println("Enter application opening date (yyyy-mm-dd):");
-        LocalDate openDate = LocalDate.parse(scanner.nextLine());
+        System.out.println("Enter application opening date (m/dd/yyyy):");
+        String openDate = scanner.nextLine();
 
-        System.out.println("Enter application closing date (yyyy-mm-dd):");
-        LocalDate closeDate = LocalDate.parse(scanner.nextLine());
+        System.out.println("Enter application closing date (m/dd/yyyy):");
+        String closeDate = scanner.nextLine();
 
         System.out.println("Enter number of officer slots:");
         int officerSlot = Integer.parseInt(scanner.nextLine());
 
-        System.out.println("Enter officer list (comma-separated NRICs or leave blank):");
+        System.out.println("Enter officer list (comma-separated Names or leave blank):");
         String officerList = scanner.nextLine();
 
         System.out.println("Enter project visibility (on/off):");
@@ -109,7 +88,7 @@ public class HDBManagerPage {
                 officerSlot, officerList, visibility);
 
         if (project != null) {
-            System.out.println("Project created successfully:\n" + project);
+            System.out.println("Project created successfully:\n" + project.toCSV());
         } else {
             System.out.println("Failed to create project.");
         }
@@ -117,7 +96,11 @@ public class HDBManagerPage {
 
     private void editProject() {
         System.out.println("\n-- Edit Project --");
-        // manager.editProject(...) // implement input logic
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the project name to edit: ");
+        String projectName = sc.nextLine();
+
+        manager.editProject(sc, projectName);
     }
 
     private void deleteProject() {
@@ -156,8 +139,8 @@ public class HDBManagerPage {
         manager.approveRejectOfficerRegistration(nric, approved);
     }
 
-    private void ManageEnquiries() {
+    private void ManageEnquiries(Scanner sc) {
         System.out.println("\n-- All Enquiries --");
-        manager.manageEnquiries();
+        manager.manageEnquiries(sc);
     }
 }

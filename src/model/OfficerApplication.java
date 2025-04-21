@@ -7,12 +7,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import utils.CSVUtils;
 
 public class OfficerApplication {
 
     private String officerNRIC;
     private String project;
     private String status;
+    private static final String OFFICERAPPLICATION_CSV = "data/OfficerApplication.csv";
 
     // Constructor to initialize the OfficerApplication object
     public OfficerApplication(String officerNRIC, String project, String status) {
@@ -61,9 +63,8 @@ public class OfficerApplication {
     // Static method to read officer applications from CSV
     public static List<OfficerApplication> readOfficerApplications() {
         List<OfficerApplication> officerApplications = new ArrayList<>();
-        String filePath = "data/OfficerApplication.csv"; // Adjust path to your actual CSV file
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(OFFICERAPPLICATION_CSV))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -86,11 +87,10 @@ public class OfficerApplication {
     // Static method to update officer application in the CSV
     public static void updateOfficerApplication(OfficerApplication updatedApplication) {
         List<OfficerApplication> officerApplications = readOfficerApplications();
-        String filePath = "data/OfficerApplication.csv"; // Adjust path to your actual CSV file
         boolean applicationFound = false;
 
         // Open the file for writing the updated list
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(OFFICERAPPLICATION_CSV))) {
             for (OfficerApplication officerApp : officerApplications) {
                 // If the officer application matches, update the status
                 if (officerApp.getOfficerNRIC().equals(updatedApplication.getOfficerNRIC()) &&
@@ -110,6 +110,17 @@ public class OfficerApplication {
                 System.out.println("Officer application not found for the given NRIC and project.");
             }
         } catch (IOException e) {
+            System.err.println("Error handling file: " + e.getMessage());
         }
+
     }
+
+    public static void createApplication(OfficerApplication newApp) {
+        CSVUtils.appendToCSV(OFFICERAPPLICATION_CSV, newApp.toCSV());
+    }
+
+    public String[] toCSV() {
+        return new String[] { officerNRIC, project, status };
+    }
+
 }

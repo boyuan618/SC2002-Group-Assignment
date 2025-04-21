@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class Applicant {
     private String nric;
     private int age;
     private String maritalStatus;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/dd/yyyy");
 
     // Constructor for Applicant
     public Applicant(String name, String nric, int age, String maritalStatus) {
@@ -69,8 +71,8 @@ public class Applicant {
 
         for (BTOProject project : allProjects) {
             if (project.getVisibility().equalsIgnoreCase("on") &&
-                    !today.isBefore(project.getOpenDate()) &&
-                    !today.isAfter(project.getCloseDate()) &&
+                    !today.isBefore(LocalDate.parse(project.getOpenDate(), formatter)) &&
+                    !today.isAfter(LocalDate.parse(project.getCloseDate(), formatter)) &&
                     isEligible(project)) {
                 availableProjects.add(project);
             }

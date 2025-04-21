@@ -2,7 +2,9 @@ package pages;
 
 import controller.HDBOfficerController;
 import model.BTOApplication;
+import model.BTOProject;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class HDBOfficerPage {
@@ -24,33 +26,29 @@ public class HDBOfficerPage {
             System.out.println("2. View Project Details");
             System.out.println("3. View and Respond to Enquiries");
             System.out.println("4. View Applicant's Booking Status");
-            System.out.println("5. Exit");
+            System.out.println("5. View Available BTO Projects");
+            System.out.println("6. Apply for BTO Project");
+            System.out.println("7. View My Application");
+            System.out.println("8. Withdraw My Application");
+            System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
             choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
             switch (choice) {
-                case 1:
-                    registerAsOfficer(scanner);
-                    break;
-                case 2:
-                    viewProjectDetails();
-                    break;
-                case 3:
-                    viewAndRespondToEnquiries();
-                    break;
-                case 4:
-                    viewApplicantBookingStatus(scanner);
-                    break;
-                case 5:
-                    System.out.println("Exiting...");
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                case 1 -> registerAsOfficer(scanner);
+                case 2 -> viewProjectDetails();
+                case 3 -> viewAndRespondToEnquiries(scanner);
+                case 4 -> viewApplicantBookingStatus(scanner);
+                case 5 -> displayAvailableProjects();
+                case 6 -> applyForProject();
+                case 7 -> viewMyApplication();
+                case 8 -> withdrawApplication();
+                case 0 -> System.out.println("Exiting...");
+                default -> System.out.println("Invalid choice. Please try again.");
             }
-        } while (choice != 5);
+        } while (choice != 0);
 
-        scanner.close();
     }
 
     // Register the officer for a project
@@ -65,12 +63,12 @@ public class HDBOfficerPage {
     // View the details of the project the officer is handling
     private void viewProjectDetails() {
         officer.viewAssignedProject();
-        ;
+
     }
 
     // View and respond to enquiries related to the project
-    private void viewAndRespondToEnquiries() {
-        officer.respondToEnquiries();
+    private void viewAndRespondToEnquiries(Scanner sc) {
+        officer.respondToEnquiries(sc);
     }
 
     // View the applicant's booking status and update if needed
@@ -98,6 +96,57 @@ public class HDBOfficerPage {
             }
         } else {
             System.out.println("You are not assigned to any project.");
+        }
+    }
+
+    public void displayAvailableProjects() {
+        List<BTOProject> availableProjects = officer.viewAvailableProjects();
+        if (availableProjects != null && !availableProjects.isEmpty()) {
+            System.out.println("Available Projects:");
+            for (BTOProject project : availableProjects) {
+                System.out.println(project.getProjectName() + " - " + project.toCSV());
+            }
+        } else {
+            System.out.println("No available projects found or you are not eligible.");
+        }
+    }
+
+    // Ask the user to apply for a project
+    public void applyForProject() {
+        System.out.print("Enter the project name you want to apply for: ");
+        String projectName = scanner.nextLine();
+        System.out.print("Enter the flat type (e.g., 2-Room, 3-Room): ");
+        String flatType = scanner.nextLine();
+
+        boolean success = officer.applyForProject(projectName, flatType);
+        if (success) {
+            System.out.println("You have successfully applied for the project.");
+        } else {
+            System.out.println(
+                    "You cannot apply for the project. You may have already applied or the project is unavailable.");
+        }
+    }
+
+    // View the applicant's current application status
+    public void viewMyApplication() {
+        BTOApplication application = officer.viewMyApplication();
+        if (application != null) {
+            System.out.println("Your Current Application Status: ");
+            System.out.println("Project: " + application.getProjectName());
+            System.out.println("Flat Type: " + application.getFlatType());
+            System.out.println("Status: " + application.getStatus());
+        } else {
+            System.out.println("You have not applied for any projects yet.");
+        }
+    }
+
+    // Allow the user to withdraw their application
+    public void withdrawApplication() {
+        boolean success = officer.requestWithdrawal();
+        if (success) {
+            System.out.println("Your application has been successfully withdrawn.");
+        } else {
+            System.out.println("You do not have an active application to withdraw.");
         }
     }
 }
