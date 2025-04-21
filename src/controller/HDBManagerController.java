@@ -1,8 +1,6 @@
 package controller;
 
-import model.HDBManager;
-import model.User;
-import model.BTOProject;
+import model.*;
 import java.util.*;
 
 public class HDBManagerController {
@@ -17,10 +15,10 @@ public class HDBManagerController {
     }
 
     // Method to create a new project
-    public BTOProject createNewProject(String projectName, String neighborhood, String type1, int units1, int price1,
-            String type2, int units2, int price2, String openDate, String closeDate,
+    public BTOProject createNewProject(String projectName, String neighborhood, ArrayList<Room> rooms, String openDate,
+            String closeDate,
             int officerSlot, String officerList, String visibility) {
-        return hdbManager.createListing(projectName, neighborhood, type1, units1, price1, type2, units2, price2,
+        return hdbManager.createListing(projectName, neighborhood, rooms,
                 openDate, closeDate, officerSlot, officerList, visibility);
     }
 
@@ -48,35 +46,24 @@ public class HDBManagerController {
         if (!neighborhood.isEmpty())
             selected.setNeighborhood(neighborhood);
 
-        System.out.print("New Type 1 [" + selected.getType1() + "]: ");
-        String type1 = sc.nextLine();
-        if (!type1.isEmpty())
-            selected.setType1(type1);
+        int count = 0;
+        for (Room type : selected.getRooms()) {
+            System.out.print("New Type " + count + " [" + type.getRoomType() + "]: ");
+            String type1 = sc.nextLine();
+            if (!type1.isEmpty())
+                type.setRoomType(type1);
 
-        System.out.print("New Units for Type 1 [" + selected.getUnits1() + "]: ");
-        String units1 = sc.nextLine();
-        if (!units1.isEmpty())
-            selected.setUnits1(Integer.parseInt(units1));
+            System.out.print("New Units for Type " + count + " [" + type.getUnits() + "]: ");
+            String units1 = sc.nextLine();
+            if (!units1.isEmpty())
+                type.setUnits(Integer.parseInt(units1));
 
-        System.out.print("New Price for Type 1 [" + selected.getPrice1() + "]: ");
-        String price1 = sc.nextLine();
-        if (!price1.isEmpty())
-            selected.setPrice1(Integer.parseInt(price1));
+            System.out.print("New Price for Type " + count + " [" + type.getPrice() + "]: ");
+            String price1 = sc.nextLine();
+            if (!price1.isEmpty())
+                type.setPrice(Integer.parseInt(price1));
 
-        System.out.print("New Type 2 [" + selected.getType2() + "]: ");
-        String type2 = sc.nextLine();
-        if (!type2.isEmpty())
-            selected.setType2(type2);
-
-        System.out.print("New Units for Type 2 [" + selected.getUnits2() + "]: ");
-        String units2 = sc.nextLine();
-        if (!units2.isEmpty())
-            selected.setUnits2(Integer.parseInt(units2));
-
-        System.out.print("New Price for Type 2 [" + selected.getPrice2() + "]: ");
-        String price2 = sc.nextLine();
-        if (!price2.isEmpty())
-            selected.setPrice2(Integer.parseInt(price2));
+        }
 
         System.out.print("New Application Opening Date [" + selected.getOpenDate() + "]: ");
         String openDateStr = sc.nextLine();

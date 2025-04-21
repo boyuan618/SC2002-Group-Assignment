@@ -1,8 +1,7 @@
 package model;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import utils.CSVUtils;
 
@@ -80,10 +79,11 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
             System.out.println("\n===== Officer Handling Project =====");
             System.out.println("Project Name       : " + projectAssigned.getProjectName());
             System.out.println("Neighborhood       : " + projectAssigned.getNeighborhood());
-            System.out.println("Type 1             : " + projectAssigned.getType1() + " | Units: "
-                    + projectAssigned.getUnits1() + " | Price: $" + projectAssigned.getPrice1());
-            System.out.println("Type 2             : " + projectAssigned.getType2() + " | Units: "
-                    + projectAssigned.getUnits2() + " | Price: $" + projectAssigned.getPrice2());
+            for (Room type : projectAssigned.getRooms()) {
+                System.out.println(
+                        "Type            : " + type.getRoomType() + " | Units: " + type.getUnits() + " | Price: $"
+                                + type.getPrice());
+            }
             System.out.println("Opening Date       : " + projectAssigned.getOpenDate());
             System.out.println("Closing Date       : " + projectAssigned.getCloseDate());
             System.out.println("Manager            : " + projectAssigned.getManager());
@@ -101,11 +101,14 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
             // Update the applicant's flat type
             application.setFlatType(flatType);
             // Decrease the number of available units of the selected flat type
-            if (flatType.equals("2-Room")) {
-                projectAssigned.setUnits1(projectAssigned.getUnits1() - 1);
-            } else {
-                projectAssigned.setUnits2(projectAssigned.getUnits2() - 1);
+            for (Room type : projectAssigned.getRooms()) {
+                if (type.getRoomType().equals(flatType)) {
+                    type.setUnits(type.getUnits() - 1); // Reduce by 1
+                    BTOProject.editProject(projectAssigned); // Write the update
+                    break;
+                }
             }
+
             // Update the applicant's status to "Booked"
             application.setStatus("Booked");
             BTOApplication.updateBTOApplication(application);
@@ -129,6 +132,12 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
             }
         }
         return null; // not found
+    }
+
+    public ArrayList<BTOApplication> getApplications() {
+        ArrayList<BTOApplication> applications = new ArrayList<>(BTOApplication.getApplications());
+
+        return applications;
     }
 
 }

@@ -11,10 +11,11 @@ public interface EnquiryInt {
             System.out.println("\n===== Officer Project Details =====");
             System.out.println("Project Name       : " + p.getProjectName());
             System.out.println("Neighborhood       : " + p.getNeighborhood());
-            System.out.println("Type 1             : " + p.getType1() + " | Units: " + p.getUnits1() + " | Price: $"
-                    + p.getPrice1());
-            System.out.println("Type 2             : " + p.getType2() + " | Units: " + p.getUnits2() + " | Price: $"
-                    + p.getPrice2());
+            for (Room type : p.getRooms()) {
+                System.out.println(
+                        "Type            : " + type.getRoomType() + " | Units: " + type.getUnits() + " | Price: $"
+                                + type.getPrice());
+            }
             System.out.println("Opening Date       : " + p.getOpenDate());
             System.out.println("Closing Date       : " + p.getCloseDate());
             System.out.println("Manager            : " + p.getManager());

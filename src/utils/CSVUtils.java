@@ -38,30 +38,9 @@ public class CSVUtils {
      * Writes a list of string arrays to a CSV file, overwriting existing content.
      */
     public static void writeCSV(String filepath, List<String[]> data) {
-        List<String[]> existingData = new ArrayList<>();
-
-        // Read existing data from the file, keeping the first line (header)
-        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) {
-            String line;
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    existingData.add(line.split(",")); // Keep the first line (headers)
-                    firstLine = false;
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading CSV file: " + filepath);
-        }
 
         // Write the first line (header) back and overwrite the rest with new data
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filepath))) {
-            // Write the first line (header)
-            for (String[] row : existingData) {
-                bw.write(String.join(",", row)); // Write the header
-                bw.newLine();
-            }
-
             // Write the new data to overwrite the existing content
             for (String[] row : data) {
                 bw.write(String.join(",", row)); // Write each new row

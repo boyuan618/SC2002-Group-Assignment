@@ -2,9 +2,9 @@ package pages;
 
 import controller.ProjectManagerController;
 import model.BTOProject;
+import model.Room;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class HDBManagerPage {
     final private ProjectManagerController manager;
@@ -54,19 +54,20 @@ public class HDBManagerPage {
         System.out.println("Enter neighborhood:");
         String neighborhood = scanner.nextLine();
 
-        System.out.println("Enter type 1 (e.g., 2-Room):");
-        String type1 = scanner.nextLine();
-        System.out.println("Enter units for type 1:");
-        int units1 = Integer.parseInt(scanner.nextLine());
-        System.out.println("Enter price for type 1:");
-        int price1 = Integer.parseInt(scanner.nextLine());
+        ArrayList<Room> rooms = new ArrayList<>();
+        System.out.println("Enter number of room types:");
+        int types = Integer.parseInt(scanner.nextLine());
 
-        System.out.println("Enter type 2 (e.g., 3-Room):");
-        String type2 = scanner.nextLine();
-        System.out.println("Enter units for type 2:");
-        int units2 = Integer.parseInt(scanner.nextLine());
-        System.out.println("Enter price for type 2:");
-        int price2 = Integer.parseInt(scanner.nextLine());
+        for (int i = 1; i <= types; i++) {
+            System.out.println("Enter type " + i + " (2-Room/3-Room):");
+            String type = scanner.nextLine();
+            System.out.println("Enter units for type " + i + ":");
+            int units = Integer.parseInt(scanner.nextLine());
+            System.out.println("Enter price for type " + i + ":");
+            int price = Integer.parseInt(scanner.nextLine());
+
+            rooms.add(new Room(type, units, price));
+        }
 
         System.out.println("Enter application opening date (m/dd/yyyy):");
         String openDate = scanner.nextLine();
@@ -83,8 +84,7 @@ public class HDBManagerPage {
         System.out.println("Enter project visibility (on/off):");
         String visibility = scanner.nextLine();
 
-        BTOProject project = manager.createNewProject(name, neighborhood, type1, units1, price1,
-                type2, units2, price2, openDate, closeDate,
+        BTOProject project = manager.createNewProject(name, neighborhood, rooms, openDate, closeDate,
                 officerSlot, officerList, visibility);
 
         if (project != null) {

@@ -1,27 +1,16 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import utils.CSVUtils;
 
 public class BTOProject {
     private String projectName;
     private String neighborhood;
-    private String type1;
-    private int units1;
-    private int price1;
-    private String type2;
-    private int units2;
-    private int price2;
+    private ArrayList<Room> rooms;
     private String openDate;
     private String closeDate;
     private String manager;
@@ -35,17 +24,11 @@ public class BTOProject {
     public BTOProject() {
     }; /* defaulter object */
 
-    public BTOProject(String projectName, String neighborhood, String type1, int units1, int price1,
-            String type2, int units2, int price2, String openDate, String closeDate,
+    public BTOProject(String projectName, String neighborhood, ArrayList<Room> rooms, String openDate, String closeDate,
             String manager, int officerSlot, String originalList, String visibility) {
         this.projectName = projectName;
         this.neighborhood = neighborhood;
-        this.type1 = type1;
-        this.units1 = units1;
-        this.price1 = price1;
-        this.type2 = type2;
-        this.units2 = units2;
-        this.price2 = price2;
+        this.rooms = rooms;
         this.openDate = openDate;
         this.closeDate = closeDate;
         this.manager = manager;
@@ -67,44 +50,12 @@ public class BTOProject {
         this.neighborhood = neighoburhood;
     }
 
-    public String getType1() {
-        return type1;
+    public ArrayList<Room> getRooms() {
+        return rooms;
     }
 
-    public void setType1(String type1) {
-        this.type1 = type1;
-    }
-
-    public int getUnits1() {
-        return units1;
-    }
-
-    public int getPrice1() {
-        return price1;
-    }
-
-    public void setPrice1(int price1) {
-        this.price1 = price1;
-    }
-
-    public String getType2() {
-        return type2;
-    }
-
-    public void setType2(String type2) {
-        this.type2 = type2;
-    }
-
-    public int getUnits2() {
-        return units2;
-    }
-
-    public int getPrice2() {
-        return price2;
-    }
-
-    public void setPrice2(int price2) {
-        this.price2 = price2;
+    public void setRooms(ArrayList<Room> Rooms) {
+        this.rooms = Rooms;
     }
 
     public String getOpenDate() {
@@ -163,14 +114,6 @@ public class BTOProject {
         officerSlot -= 1;
     }
 
-    public void setUnits1(int x) { /* for manager's use */
-        units1 = x;
-    }
-
-    public void setUnits2(int y) { /* for manager's use */
-        units2 = y;
-    }
-
     public String getVisibility() {
         return visibility;
     }
@@ -185,22 +128,31 @@ public class BTOProject {
 
         for (String[] row : rows) {
             try {
+                String projectName = row[0];
+                String neighborhood = row[1];
+
+                // Determine how many flat types exist (assumes flat types are in groups of 3)
+                int RoomCount = (row.length - 10) / 3;
+                ArrayList<Room> Rooms = new ArrayList<>();
+
+                for (int i = 0; i < RoomCount; i++) {
+                    String type = row[2 + i * 3];
+                    int units = Integer.parseInt(row[3 + i * 3]);
+                    int price = Integer.parseInt(row[4 + i * 3]);
+                    Rooms.add(new Room(type, units, price));
+                }
+
+                String openDate = row[2 + RoomCount * 3];
+                String closeDate = row[3 + RoomCount * 3];
+                String manager = row[4 + RoomCount * 3];
+                int officerSlot = Integer.parseInt(row[5 + RoomCount * 3]);
+                String officerList = row[6 + RoomCount * 3];
+                String visibility = row[7 + RoomCount * 3];
+
                 BTOProject project = new BTOProject(
-                        row[0], // projectName
-                        row[1], // neighborhood
-                        row[2], // type1
-                        Integer.parseInt(row[3]), // units1
-                        Integer.parseInt(row[4]), // price1
-                        row[5], // type2
-                        Integer.parseInt(row[6]), // units2
-                        Integer.parseInt(row[7]), // price2
-                        row[8], // openDate
-                        row[9], // closeDate
-                        row[10], // manager
-                        Integer.parseInt(row[11]), // officerSlot
-                        row[12], // originalList
-                        row[13] // visibility
-                );
+                        projectName, neighborhood, Rooms, openDate, closeDate,
+                        manager, officerSlot, officerList, visibility);
+
                 projectList.add(project);
 
             } catch (NumberFormatException e) {
@@ -214,32 +166,45 @@ public class BTOProject {
     }
 
     public static void addProject(BTOProject project) {
-        try (FileWriter fw = new FileWriter(PROJECTS_CSV, true); BufferedWriter bw = new BufferedWriter(fw)) {
+        try (FileWriter fw = new FileWriter(PROJECTS_CSV, true);
+                BufferedWriter bw = new BufferedWriter(fw)) {
+
+            // Convert room list to CSV-compatible strings
+            ArrayList<String> roomCSV = new ArrayList<>();
+            for (Room room : project.getRooms()) {
+                roomCSV.add(room.toCSV()); // Assume this returns something like "2-Room,100,200000"
+            }
+
             String[] filteredlist = project.officerList.stream()
                     .filter(s -> s != null && !s.trim().isEmpty())
                     .toArray(String[]::new);
+
+            // Write full project row
             bw.write(String.join(",",
-                    project.projectName,
-                    project.neighborhood,
-                    project.type1,
-                    Integer.toString(project.units1),
-                    Integer.toString(project.price1),
-                    project.type2,
-                    Integer.toString(project.units2),
-                    Integer.toString(project.price2),
-                    project.openDate,
-                    project.closeDate,
-                    project.manager,
-                    Integer.toString(project.officerSlot),
-                    "\"" + String.join(",", filteredlist) + "\"", // Special to add ""
-                    project.visibility));
+                    project.getProjectName(),
+                    project.getNeighborhood(),
+                    String.join(",", roomCSV), // All room details
+                    project.getOpenDate(),
+                    project.getCloseDate(),
+                    project.getManager(),
+                    Integer.toString(project.getOfficerSlot()),
+                    "\"" + String.join(",", filteredlist) + "\"", // Officer list in quotes
+                    project.getVisibility()));
+
             bw.newLine();
         } catch (IOException e) {
+            System.out.println("❌ Failed to write project: " + e.getMessage());
         }
     }
 
     public static void editProject(BTOProject updatedProject) {
         List<String> lines = new ArrayList<>();
+
+        // Convert room list to CSV-compatible strings
+        ArrayList<String> roomCSV = new ArrayList<>();
+        for (Room room : updatedProject.getRooms()) {
+            roomCSV.add(room.toCSV()); // Assume this returns something like "2-Room,100,200000"
+        }
 
         try (BufferedReader br = new BufferedReader(new FileReader(PROJECTS_CSV))) {
             String line;
@@ -252,12 +217,7 @@ public class BTOProject {
                     lines.add(String.join(",",
                             updatedProject.projectName,
                             updatedProject.neighborhood,
-                            updatedProject.type1,
-                            Integer.toString(updatedProject.units1),
-                            Integer.toString(updatedProject.price1),
-                            updatedProject.type2,
-                            Integer.toString(updatedProject.units2),
-                            Integer.toString(updatedProject.price2),
+                            String.join(",", roomCSV), // All room details
                             updatedProject.openDate,
                             updatedProject.closeDate,
                             updatedProject.manager,
@@ -316,18 +276,20 @@ public class BTOProject {
     }
 
     public String toCSV() {
+        // Convert room list to CSV-compatible strings
+        ArrayList<String> roomCSV = new ArrayList<>();
+        for (Room room : getRooms()) {
+            roomCSV.add(room.toCSV()); // Assume this returns something like "2-Room,100,200000"
+        }
+
         String[] filteredlist = officerList.stream()
                 .filter(s -> s != null && !s.trim().isEmpty())
                 .toArray(String[]::new);
+
         return String.join(",",
                 projectName,
                 neighborhood,
-                type1,
-                Integer.toString(units1),
-                Integer.toString(price1),
-                type2,
-                Integer.toString(units2),
-                Integer.toString(price2),
+                String.join(",", roomCSV), // All room details
                 openDate,
                 closeDate,
                 manager,

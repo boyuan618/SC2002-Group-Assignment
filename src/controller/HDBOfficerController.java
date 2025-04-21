@@ -91,4 +91,8 @@ public class HDBOfficerController extends ApplicantController {
         return false;
     }
 
+    public ArrayList<BTOApplication> getApplications() {
+        return hdbOfficer.getApplications();
+    }
+
 }

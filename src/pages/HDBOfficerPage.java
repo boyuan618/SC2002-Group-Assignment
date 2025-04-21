@@ -4,8 +4,7 @@ import controller.HDBOfficerController;
 import model.BTOApplication;
 import model.BTOProject;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class HDBOfficerPage {
     final private HDBOfficerController officer;
@@ -25,11 +24,12 @@ public class HDBOfficerPage {
             System.out.println("1. Register as Officer for a Project");
             System.out.println("2. View Project Details");
             System.out.println("3. View and Respond to Enquiries");
-            System.out.println("4. View Applicant's Booking Status");
-            System.out.println("5. View Available BTO Projects");
-            System.out.println("6. Apply for BTO Project");
-            System.out.println("7. View My Application");
-            System.out.println("8. Withdraw My Application");
+            System.out.println("4. View Applications");
+            System.out.println("5. Manage Applicant's Booking Status");
+            System.out.println("6. View Available BTO Projects");
+            System.out.println("7. Apply for BTO Project");
+            System.out.println("8. View My Application");
+            System.out.println("9. Withdraw My Application");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
             choice = scanner.nextInt();
@@ -39,11 +39,12 @@ public class HDBOfficerPage {
                 case 1 -> registerAsOfficer(scanner);
                 case 2 -> viewProjectDetails();
                 case 3 -> viewAndRespondToEnquiries(scanner);
-                case 4 -> viewApplicantBookingStatus(scanner);
-                case 5 -> displayAvailableProjects();
-                case 6 -> applyForProject();
-                case 7 -> viewMyApplication();
-                case 8 -> withdrawApplication();
+                case 4 -> viewApplications();
+                case 5 -> manageApplicantBookingStatus(scanner);
+                case 6 -> displayAvailableProjects();
+                case 7 -> applyForProject();
+                case 8 -> viewMyApplication();
+                case 9 -> withdrawApplication();
                 case 0 -> System.out.println("Exiting...");
                 default -> System.out.println("Invalid choice. Please try again.");
             }
@@ -71,8 +72,20 @@ public class HDBOfficerPage {
         officer.respondToEnquiries(sc);
     }
 
+    // View Applications
+    private void viewApplications() {
+        ArrayList<BTOApplication> applications = officer.getApplications();
+
+        for (BTOApplication application : applications) {
+            System.out.println(
+                    "Applicant: " + model.Applicant.getApplicantByNRIC(application.getApplicantNRIC()).getName());
+            System.out.println("Status: " + application.getStatus());
+            System.out.println("Flat Type: " + application.getFlatType());
+        }
+    }
+
     // View the applicant's booking status and update if needed
-    private void viewApplicantBookingStatus(Scanner scanner) {
+    private void manageApplicantBookingStatus(Scanner scanner) {
         if (officer.getProjectAssigned() != null) {
             System.out.print("Enter the applicant's NRIC to view booking status: ");
             String applicantNric = scanner.nextLine();
@@ -85,7 +98,7 @@ public class HDBOfficerPage {
                 System.out.println("Status: " + application.getStatus());
                 System.out.println("Flat Type: " + application.getFlatType());
                 if (application.getStatus().equalsIgnoreCase("successful")) {
-                    System.out.print("Do you want to update status to 'booked'? (yes/no): ");
+                    System.out.print("Do you want to update status to 'Booked'? (yes/no): ");
                     String response = scanner.nextLine();
                     if ("yes".equalsIgnoreCase(response)) {
                         officer.handleFlatSelection(application, application.getFlatType());

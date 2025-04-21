@@ -1,0 +1,5 @@
+Users -> Name,NRIC,Age,Marital Status,Password,Role
+ProjectList -> Project Name,Neighborhood,[Type X,Number of units for Type X,Selling price for Type X],Application opening date,Application closing date,Manager,Officer Slot,Officer,Visibility
+FlatApplications -> ApplicantNRIC,Project,FlatType,Status
+FlatEnquiries -> id,nric,Project Name,title,details,response
+OfficerApplication -> OfficerNRIC,Project,Status

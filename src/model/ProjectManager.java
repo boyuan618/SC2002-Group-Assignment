@@ -81,21 +81,18 @@ public class ProjectManager extends HDBManager {
         for (BTOApplication app : applications) {
             if (app.getProjectName().equals(project.getProjectName()) && app.getApplicantNRIC().equals(applicantNRIC)) {
                 if (approve) {
-                    if (flatType.equals(project.getType1()) && project.getUnits1() > 0) {
-                        app.setStatus("Approved");
-                        project.setUnits1(project.getUnits1() - 1); // Decrease units of flat type 1
-                        BTOApplication.updateBTOApplication(app);
-                        System.out.println("Applicant approved.");
-                    } else if (flatType.equals(project.getType2()) && project.getUnits2() > 0) {
-                        app.setStatus("Approved");
-                        project.setUnits2(project.getUnits2() - 1); // Decrease units of flat type 2
-                        BTOApplication.updateBTOApplication(app);
-                        System.out.println("Applicant approved.");
-                    } else {
-                        System.out.println("Not enough units available for requested flat type.");
+                    for (Room type : project.getRooms()) {
+                        if (type.getRoomType().equals(flatType) && type.getUnits() > 0) {
+                            app.setStatus("Successful");
+                            BTOApplication.updateBTOApplication(app);
+                            System.out.println("Applicant approved.");
+                        } else {
+                            System.out.println("Not enough units available for requested flat type.");
+                        }
                     }
+
                 } else {
-                    app.setStatus("Rejected");
+                    app.setStatus("Unsuccessful");
                     BTOApplication.updateBTOApplication(app); // Update rejection in CSV
                     System.out.println("Applicant rejected.");
                 }
@@ -115,17 +112,17 @@ public class ProjectManager extends HDBManager {
         for (BTOApplication app : applications) {
             if (app.getProjectName().equals(project.getProjectName()) && app.getApplicantNRIC().equals(applicantNRIC)) {
                 if (approve) {
-                    app.setStatus("Withdrawn");
-                    if (app.getFlatType().equals(project.getType1())) {
-                        project.setUnits1(project.getUnits1() + 1); // Increase units of flat type 1
-                    } else if (app.getFlatType().equals(project.getType2())) {
-                        project.setUnits2(project.getUnits2() + 1); // Increase units of flat type 2
+                    app.setStatus("Unsuccessful");
+                    for (Room type : project.getRooms()) {
+                        if (type.getRoomType().equals(app.getFlatType())) {
+                            type.setUnits(type.getUnits() + 1);
+                            BTOProject.editProject(project); // Write Updates
+                            break;
+                        }
                     }
                     BTOApplication.updateBTOApplication(app); // Update withdrawal status in CSV
                     System.out.println("Applicant withdrawal approved.");
                 } else {
-                    app.setStatus("Pending"); // Or any other appropriate status
-                    BTOApplication.updateBTOApplication(app); // Update status in CSV
                     System.out.println("Applicant withdrawal rejected.");
                 }
                 return;

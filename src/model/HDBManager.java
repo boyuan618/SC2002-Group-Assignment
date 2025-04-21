@@ -15,8 +15,8 @@ public class HDBManager extends User implements EnquiryInt {
     }
 
     // Method to create a new project listing and save it to CSV
-    public BTOProject createListing(String projectName, String neighborhood, String type1, int units1, int price1,
-            String type2, int units2, int price2, String openDate, String closeDate,
+    public BTOProject createListing(String projectName, String neighborhood, ArrayList<Room> rooms, String openDate,
+            String closeDate,
             int officerSlot, String officerList, String visibility) {
 
         // Check if the manager is already managing a project within the application
@@ -27,8 +27,16 @@ public class HDBManager extends User implements EnquiryInt {
             return null;
         }
 
-        BTOProject newProject = new BTOProject(projectName, neighborhood, type1, units1, price1,
-                type2, units2, price2, openDate, closeDate, this.getName(), officerSlot, officerList, visibility);
+        // Check if project name is unique
+        for (BTOProject project : BTOProject.getProjects()) {
+            if (project.getProjectName().equals(projectName)) {
+                System.out.println("Duplicate Project Name " + projectName + ". Please ensure name is unique.");
+                return null;
+            }
+        }
+
+        BTOProject newProject = new BTOProject(projectName, neighborhood, rooms, openDate, closeDate, this.getName(),
+                officerSlot, officerList, visibility);
 
         // Save the new project to the CSV file
         BTOProject.addProject(newProject);
