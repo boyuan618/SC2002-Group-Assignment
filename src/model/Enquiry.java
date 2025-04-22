@@ -120,6 +120,11 @@ public class Enquiry {
             if (enquiries.get(i).getEnquirerNRIC().equals(nric)) {
                 count++;
                 if (count == index) {
+                    // Check if there is reply alr
+                    if (enquiries.get(i).getResponse() != null) {
+                        System.out.println("You cannot delete as there is already a response!");
+                        return false;
+                    }
                     enquiries.remove(i);
                     Enquiry.writeEnquiries(enquiries);
                     return true;

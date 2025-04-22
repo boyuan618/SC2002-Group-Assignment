@@ -4,8 +4,8 @@ import model.BTOProject;
 import model.ProjectManager;
 import model.User;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import model.BTOApplication;
 
 public class ProjectManagerController extends HDBManagerController {
 
@@ -37,9 +37,8 @@ public class ProjectManagerController extends HDBManagerController {
     }
 
     // Approve or reject a BTO application
-    public void approveRejectBTOApplication(String applicantNRIC, String flatType,
-            boolean approve) {
-        projectManager.approveRejectApplication(applicantNRIC, flatType, approve);
+    public void approveRejectBTOApplication(String applicantNRIC, boolean approve) {
+        projectManager.approveRejectApplication(applicantNRIC, approve);
     }
 
     // Approve or reject withdrawal request for a BTO application
@@ -49,6 +48,23 @@ public class ProjectManagerController extends HDBManagerController {
 
     public void manageEnquiries(Scanner sc) {
         projectManager.viewAndReplyEnquiries(sc);
+    }
+
+    public BTOProject getProjectManaging() {
+        return projectManager.getProjectManaging();
+    }
+
+    public ArrayList<BTOApplication> viewBTOApplications() {
+        ArrayList<BTOApplication> applications = new ArrayList<>(BTOApplication.getApplications());
+        ArrayList<BTOApplication> filteredApplications = new ArrayList<>();
+
+        for (BTOApplication application : applications) {
+            if (application.getStatus().equals("Pending")) {
+                filteredApplications.add(application);
+            }
+        }
+
+        return filteredApplications;
     }
 
 }

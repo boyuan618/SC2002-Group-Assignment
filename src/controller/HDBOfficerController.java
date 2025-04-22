@@ -63,6 +63,7 @@ public class HDBOfficerController extends ApplicantController {
             System.out.println("You are not handling any project currently.");
             return;
         }
+
         hdbOfficer.viewAndReplyEnquiries(sc, hdbOfficer.getProjectAssigned().getProjectName());
     }
 

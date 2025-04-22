@@ -77,10 +77,13 @@ public class HDBOfficerPage {
         ArrayList<BTOApplication> applications = officer.getApplications();
 
         for (BTOApplication application : applications) {
-            System.out.println(
-                    "Applicant: " + model.Applicant.getApplicantByNRIC(application.getApplicantNRIC()).getName());
-            System.out.println("Status: " + application.getStatus());
-            System.out.println("Flat Type: " + application.getFlatType());
+            if (application.getStatus().equals("Successful")) {
+                System.out.println(
+                        "Applicant: " + model.Applicant.getApplicantByNRIC(application.getApplicantNRIC()).getName());
+                System.out.println("Status: " + application.getStatus());
+                System.out.println("Flat Type: " + application.getFlatType());
+
+            }
         }
     }
 
@@ -91,13 +94,18 @@ public class HDBOfficerPage {
             String applicantNric = scanner.nextLine();
 
             BTOApplication application = BTOApplication.getApplicationByNRIC(applicantNric);
+            // Check if status is successful
+            if (application.getStatus().equals("Successful")) {
+                System.out.println("Application cannot be handled by you, invalid status");
+                return;
+            }
             if (application != null
                     && application.getProjectName().equals(officer.getProjectAssigned().getProjectName())) {
                 System.out.println(
                         "Applicant: " + model.Applicant.getApplicantByNRIC(application.getApplicantNRIC()).getName());
                 System.out.println("Status: " + application.getStatus());
                 System.out.println("Flat Type: " + application.getFlatType());
-                if (application.getStatus().equalsIgnoreCase("successful")) {
+                if (application.getStatus().equalsIgnoreCase("Successful")) {
                     System.out.print("Do you want to update status to 'Booked'? (yes/no): ");
                     String response = scanner.nextLine();
                     if ("yes".equalsIgnoreCase(response)) {

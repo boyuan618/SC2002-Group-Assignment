@@ -1,6 +1,7 @@
 package pages;
 
 import controller.ProjectManagerController;
+import model.BTOApplication;
 import model.BTOProject;
 import model.Room;
 
@@ -27,6 +28,8 @@ public class HDBManagerPage {
             System.out.println("6. View Officer Applications");
             System.out.println("7. Approve/Reject Officer Application");
             System.out.println("8. Manage Enquiries");
+            System.out.println("9. View BTO Applications");
+            System.out.println("10. Approve BTO Applications");
             System.out.println("0. Logout");
             System.out.print("Enter your choice: ");
             choice = Integer.parseInt(scanner.nextLine());
@@ -40,6 +43,8 @@ public class HDBManagerPage {
                 case 6 -> viewOfficerApplications();
                 case 7 -> approveRejectOfficer();
                 case 8 -> ManageEnquiries(scanner);
+                case 9 -> viewBTOApplications();
+                case 10 -> approveBTOApplications();
                 case 0 -> System.out.println("Logging out...");
                 default -> System.out.println("Invalid choice. Try again.");
             }
@@ -142,5 +147,51 @@ public class HDBManagerPage {
     private void ManageEnquiries(Scanner sc) {
         System.out.println("\n-- All Enquiries --");
         manager.manageEnquiries(sc);
+    }
+
+    private void approveBTOApplications() {
+        if (manager.getProjectManaging() != null) {
+            System.out.print("Enter the applicant's NRIC to view booking status: ");
+            String applicantNric = scanner.nextLine();
+
+            BTOApplication application = BTOApplication.getApplicationByNRIC(applicantNric);
+            // Check if status is successful
+            if (application.getStatus().equals("Successful")) {
+                System.out.println("Application cannot be handled by you, invalid status");
+                return;
+            }
+            if (application != null
+                    && application.getProjectName().equals(manager.getProjectManaging().getProjectName())) {
+                System.out.println(
+                        "Applicant: " + model.Applicant.getApplicantByNRIC(application.getApplicantNRIC()).getName());
+                System.out.println("Status: " + application.getStatus());
+                System.out.println("Flat Type: " + application.getFlatType());
+                if (application.getStatus().equalsIgnoreCase("Pending")) {
+                    System.out.print("Do you want to update status to 'Successful'? (yes/no): ");
+                    String response = scanner.nextLine();
+                    if ("yes".equalsIgnoreCase(response)) {
+                        manager.approveRejectBTOApplication(applicantNric, true);
+                    } else if ("no".equalsIgnoreCase(response)) {
+                        manager.approveRejectBTOApplication(applicantNric, false);
+                    }
+                }
+            } else {
+                System.out.println("No application found for this NRIC in your assigned project.");
+            }
+        } else {
+            System.out.println("You are not assigned to any project.");
+        }
+    }
+
+    public void viewBTOApplications() {
+        ArrayList<BTOApplication> applications = manager.viewBTOApplications();
+
+        for (BTOApplication application : applications) {
+            System.out.println(
+                    "Applicant: " + model.Applicant.getApplicantByNRIC(application.getApplicantNRIC()).getName());
+            System.out.println("Status: " + application.getStatus());
+            System.out.println("Flat Type: " + application.getFlatType());
+            System.out.println();
+        }
     }
 }

@@ -70,7 +70,7 @@ public class ProjectManager extends HDBManager {
     }
 
     // Approve or reject an applicant's BTO application
-    public void approveRejectApplication(String applicantNRIC, String flatType, boolean approve) {
+    public void approveRejectApplication(String applicantNRIC, boolean approve) {
         if (project == null) {
             System.out.println("You are not in charge of any project!");
             return;
@@ -79,10 +79,11 @@ public class ProjectManager extends HDBManager {
                                                                               // from
         // BTOApplications.csv
         for (BTOApplication app : applications) {
-            if (app.getProjectName().equals(project.getProjectName()) && app.getApplicantNRIC().equals(applicantNRIC)) {
+            if (app.getProjectName().equals(project.getProjectName()) && app.getApplicantNRIC().equals(applicantNRIC)
+                    && app.getStatus().equals("Pending")) {
                 if (approve) {
                     for (Room type : project.getRooms()) {
-                        if (type.getRoomType().equals(flatType) && type.getUnits() > 0) {
+                        if (type.getRoomType().equals(app.getFlatType()) && type.getUnits() > 0) {
                             app.setStatus("Successful");
                             BTOApplication.updateBTOApplication(app);
                             System.out.println("Applicant approved.");
@@ -131,4 +132,7 @@ public class ProjectManager extends HDBManager {
         System.out.println("Application not found.");
     }
 
+    public BTOProject getProjectManaging() {
+        return project;
+    }
 }
