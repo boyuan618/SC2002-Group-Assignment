@@ -185,9 +185,19 @@ public class Applicant {
     }
 
     public boolean requestWithdrawal() {
-        boolean removed = BTOApplication.deleteApplicationByNRIC(getNric());
-        return removed;
+        BTOApplication myApp = viewMyApplication();
+        if (myApp == null) {
+            System.out.println("No existing application found.");
+            return false;
     }
+
+    // Add to withdrawal requests CSV
+        String[] row = {getNric(), myApp.getProjectObject().getProjectName(), myApp.getFlatType(), "Pending"};
+        CSVUtils.appendToCSV("data/withdrawals.csv", row);
+
+        System.out.println("Withdrawal request submitted.");
+        return true;
+        }
 
     public void submitEnquiry(String project, String title, String detail) {
         int id = Enquiry.getEnquiries().get(Enquiry.getEnquiries().size() - 1).getId() + 1;

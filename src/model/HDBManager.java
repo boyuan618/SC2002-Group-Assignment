@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import utils.CSVUtils;
+
 public class HDBManager extends User implements EnquiryInt {
 
     public static final String PROJECT_CSV = "data/ProjectList.csv"; // Path to your project CSV file
@@ -79,6 +81,42 @@ public class HDBManager extends User implements EnquiryInt {
             project.setVisibility(visibility);
             editProject(project); // Update project in the CSV
         }
+    }
+
+    public static List<WithdrawalRequest> viewPendingWithdrawals() {
+        List<String[]> rows = CSVUtils.readCSV("data/withdrawals.csv");
+        List<WithdrawalRequest> pending = new ArrayList<>();
+
+        for (String[] row : rows) {
+            WithdrawalRequest req = WithdrawalRequest.fromCSV(row);
+            if (req.getStatus().equalsIgnoreCase("Pending")) {
+                pending.add(req);
+            }
+        }
+
+        return pending;
+    }
+
+    // Approve a request
+    public static void approveWithdrawal(WithdrawalRequest req) {
+        BTOApplication.deleteApplicationByNRIC(req.getApplicantNRIC());
+        updateWithdrawalStatus(req.getApplicantNRIC(), "Approved");
+    }
+
+    // Reject a request
+    public static void rejectWithdrawal(WithdrawalRequest req) {
+        updateWithdrawalStatus(req.getApplicantNRIC(), "Rejected");
+    }
+
+    private static void updateWithdrawalStatus(String nric, String newStatus) {
+        List<String[]> rows = CSVUtils.readCSV("data/withdrawals.csv");
+        for (String[] row : rows) {
+            if (row[0].equals(nric) && row[3].equalsIgnoreCase("Pending")) {
+                row[3] = newStatus;
+                break;
+            }
+        }
+        CSVUtils.writeCSV("data/withdrawals.csv", rows); // overwrite with updated
     }
 
     // Method to view only the manager's projects

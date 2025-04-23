@@ -25,6 +25,8 @@ public class Login {
 
                 User user = User.login(nric, password);
                 launchRoleInterface(user);
+            
+                
 
             }
         }
