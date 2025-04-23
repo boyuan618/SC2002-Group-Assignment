@@ -3,6 +3,7 @@ package pages;
 import controller.HDBOfficerController;
 import model.BTOApplication;
 import model.BTOProject;
+import model.Room;
 
 import java.util.*;
 
@@ -124,8 +125,29 @@ public class HDBOfficerPage {
         List<BTOProject> availableProjects = officer.viewAvailableProjects();
         if (availableProjects != null && !availableProjects.isEmpty()) {
             System.out.println("Available Projects:");
-            for (BTOProject project : availableProjects) {
-                System.out.println(project.getProjectName() + " - " + project.toCSV());
+            for (BTOProject p : availableProjects) {
+                System.out.println();
+                System.out.println("=== Project Details ===");
+                System.out.println("Project Name         : " + p.getProjectName());
+                System.out.println("Neighborhood         : " + p.getNeighborhood());
+
+                System.out.println("Room Types:");
+                for (Room room : p.getRooms()) {
+                    System.out.println("  - Type             : " + room.getRoomType());
+                    System.out.println("    Units Available  : " + room.getUnits());
+                    System.out.println("    Selling Price    : $" + room.getPrice());
+                }
+
+                System.out.println("Application Open Date: " + p.getOpenDate());
+                System.out.println("Application Close Date: " + p.getCloseDate());
+                System.out.println("Manager              : " + p.getManager());
+                System.out.println("Officer Slot         : " + p.getOfficerSlot());
+
+                System.out.println("Officer(s) Assigned  : " + p.getOfficerList());
+
+                System.out.println("Visibility           : " + p.getVisibility());
+                System.out.println("=========================");
+                System.out.println();
             }
         } else {
             System.out.println("No available projects found or you are not eligible.");

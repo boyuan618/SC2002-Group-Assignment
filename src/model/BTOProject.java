@@ -132,7 +132,7 @@ public class BTOProject {
                 String neighborhood = row[1];
 
                 // Determine how many flat types exist (assumes flat types are in groups of 3)
-                int RoomCount = (row.length - 10) / 3;
+                int RoomCount = (row.length - 8) / 3;
                 ArrayList<Room> Rooms = new ArrayList<>();
 
                 for (int i = 0; i < RoomCount; i++) {
@@ -156,9 +156,9 @@ public class BTOProject {
                 projectList.add(project);
 
             } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error parsing project row: " + String.join(",", row) + " NumberFormatError");
+                System.out.println("Error parsing project row: " + String.join(",", row) + " NumberFormatError");
             } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("⚠️ Error parsing project row: " + String.join(",", row) + " Array out of bounds");
+                System.out.println("Error parsing project row: " + String.join(",", row) + " Array out of bounds");
             }
         }
 
@@ -193,7 +193,7 @@ public class BTOProject {
 
             bw.newLine();
         } catch (IOException e) {
-            System.out.println("❌ Failed to write project: " + e.getMessage());
+            System.out.println("Failed to write project: " + e.getMessage());
         }
     }
 

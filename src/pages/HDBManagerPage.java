@@ -118,14 +118,56 @@ public class HDBManagerPage {
     private void viewAllProjects() {
         List<BTOProject> all = manager.getAllProjects();
         for (BTOProject p : all) {
-            System.out.println(p.toCSV());
+            System.out.println();
+            System.out.println("=== Project Details ===");
+            System.out.println("Project Name         : " + p.getProjectName());
+            System.out.println("Neighborhood         : " + p.getNeighborhood());
+
+            System.out.println("Room Types:");
+            for (Room room : p.getRooms()) {
+                System.out.println("  - Type             : " + room.getRoomType());
+                System.out.println("    Units Available  : " + room.getUnits());
+                System.out.println("    Selling Price    : $" + room.getPrice());
+            }
+
+            System.out.println("Application Open Date: " + p.getOpenDate());
+            System.out.println("Application Close Date: " + p.getCloseDate());
+            System.out.println("Manager              : " + p.getManager());
+            System.out.println("Officer Slot         : " + p.getOfficerSlot());
+
+            System.out.println("Officer(s) Assigned  : " + p.getOfficerList());
+
+            System.out.println("Visibility           : " + p.getVisibility());
+            System.out.println("=========================");
+            System.out.println();
         }
     }
 
     private void viewOwnProjects() {
         List<BTOProject> own = manager.getMyProjects();
         for (BTOProject p : own) {
-            System.out.println(p.toCSV());
+            System.out.println();
+            System.out.println("=== Project Details ===");
+            System.out.println("Project Name         : " + p.getProjectName());
+            System.out.println("Neighborhood         : " + p.getNeighborhood());
+
+            System.out.println("Room Types:");
+            for (Room room : p.getRooms()) {
+                System.out.println("  - Type             : " + room.getRoomType());
+                System.out.println("    Units Available  : " + room.getUnits());
+                System.out.println("    Selling Price    : $" + room.getPrice());
+            }
+
+            System.out.println("Application Open Date: " + p.getOpenDate());
+            System.out.println("Application Close Date: " + p.getCloseDate());
+            System.out.println("Manager              : " + p.getManager());
+            System.out.println("Officer Slot         : " + p.getOfficerSlot());
+
+            System.out.println("Officer(s) Assigned  : " + p.getOfficerList());
+
+            System.out.println("Visibility           : " + p.getVisibility());
+            System.out.println("=========================");
+            System.out.println();
         }
     }
 

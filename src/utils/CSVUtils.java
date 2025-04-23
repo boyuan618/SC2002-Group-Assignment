@@ -16,14 +16,12 @@ public class CSVUtils {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filepath))) {
             String line;
-            boolean isFirstLine = true;
 
             while ((line = br.readLine()) != null) {
-                if (isFirstLine) {
-                    isFirstLine = false; // Skip header
-                    continue;
-                }
                 // Split on commas not inside quotes
+                if (line.startsWith("\uFEFF")) {
+                    line = line.substring(1);
+                }
                 String[] row = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                 data.add(row);
             }

@@ -23,10 +23,13 @@ public class Login {
                 System.out.print("Enter Password: ");
                 String password = scanner.nextLine().trim();
 
-                User user = User.login(nric, password);
-                launchRoleInterface(user);
-            
-                
+                try {
+                    User user = User.login(nric, password);
+                    launchRoleInterface(user);
+
+                } catch (Exception e) {
+                    return;
+                }
 
             }
         }
