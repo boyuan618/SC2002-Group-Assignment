@@ -42,7 +42,6 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
         }
 
         this.projectAssigned = null;
-
         List<BTOProject> projects = BTOProject.getProjects();
         if (projects == null) {
             System.out.println("Warning: Unable to retrieve projects for officer assignment.");
@@ -152,18 +151,12 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
             throw new IllegalArgumentException("Project cannot be null.");
         }
         if (canRegisterForProject(project)) {
-            try {
-                String officerList = project.getOfficerList() != null ? project.getOfficerList().trim() : "";
-                if (!officerList.isEmpty() && Arrays.asList(officerList.split("\\s*,\\s*")).contains(this.getName())) {
-                    System.out.println("Error: You are already registered as an officer for this project.");
-                    return;
-                }
-                this.projectAssigned = project;
-                project.addOfficer(this.getName());
-                System.out.println("✅ Successfully registered as an HDB Officer for project: " + project.getProjectName());
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error registering for project: " + e.getMessage());
-            }
+            // Register the officer for the project
+            this.projectAssigned = project;
+            // Add the officer to the project officer list
+            project.addOfficer(this.getNric());
+            System.out.println("You have been successfully registered as a HDB Officer for the project: "
+                    + project.getProjectName());
         }
     }
 
@@ -233,7 +226,6 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
             if (type != null && type.getRoomType() != null && type.getRoomType().equalsIgnoreCase(flatType)) {
                 flatTypeExists = true;
                 if (type.getUnits() > 0) {
-                    unitsAvailable = true;
                     try {
                         type.setUnits(type.getUnits() - 1);
                         application.setFlatType(flatType);
@@ -241,7 +233,7 @@ public class HDBOfficer extends Applicant implements EnquiryInt {
                         BTOProject.editProject(projectAssigned);
                         BTOApplication.updateBTOApplication(application);
                         Receipt.fromBTOApplication(application).printReceipt();
-                        System.out.println("✅ Flat selection completed for application: " + application.getApplicantNRIC());
+                        System.out.println("Flat selection completed for application: " + application.getApplicantNRIC());
                     } catch (RuntimeException e) {
                         System.out.println("Error processing flat selection: " + e.getMessage());
                     }

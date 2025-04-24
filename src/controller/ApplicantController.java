@@ -29,9 +29,7 @@ public class ApplicantController {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null.");
         }
-        if (!user.getRole().equals("Applicant")) {
-            throw new IllegalArgumentException("User must have Applicant role.");
-        }
+    
         this.user = user;
     }
 
@@ -90,7 +88,7 @@ public class ApplicantController {
         }
         boolean success = applicant.applyForProject(projectName.trim(), flatType.trim());
         if (success) {
-            System.out.println("✅ Application submitted successfully for project: " + projectName.trim());
+            System.out.println("Application submitted successfully for project: " + projectName.trim());
         }
         return success;
     }
@@ -128,7 +126,7 @@ public class ApplicantController {
         }
         boolean success = applicant.requestWithdrawal();
         if (success) {
-            System.out.println("✅ Withdrawal request submitted successfully.");
+            System.out.println("Withdrawal request submitted successfully.");
         }
         return success;
     }
@@ -165,7 +163,7 @@ public class ApplicantController {
             throw new IllegalArgumentException("Project does not exist: " + project.trim());
         }
         applicant.submitEnquiry(project.trim(), title.trim(), detail.trim());
-        System.out.println("✅ Enquiry submitted successfully for project: " + project.trim());
+        System.out.println("Enquiry submitted successfully for project: " + project.trim());
         return true;
     }
 
@@ -219,7 +217,7 @@ public class ApplicantController {
         }
         boolean success = applicant.editEnquiry(enquiryIndex, newTitle.trim(), newDetail.trim());
         if (success) {
-            System.out.println("✅ Enquiry edited successfully at index: " + enquiryIndex);
+            System.out.println("Enquiry edited successfully at index: " + enquiryIndex);
         }
         return success;
     }
@@ -249,7 +247,7 @@ public class ApplicantController {
         }
         boolean success = applicant.deleteEnquiry(enquiryIndex);
         if (success) {
-            System.out.println("✅ Enquiry deleted successfully at index: " + enquiryIndex);
+            System.out.println("Enquiry deleted successfully at index: " + enquiryIndex);
         }
         return success;
     }

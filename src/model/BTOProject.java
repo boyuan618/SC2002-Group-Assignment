@@ -50,9 +50,6 @@ public class BTOProject {
      */
     public BTOProject(String projectName, String neighborhood, ArrayList<Room> rooms, String openDate, String closeDate,
             String manager, int officerSlot, String originalList, String visibility) {
-        if (!Validator.isValidProjectName(projectName)) {
-            throw new IllegalArgumentException("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
-        }
         if (neighborhood == null || neighborhood.trim().isEmpty()) {
             throw new IllegalArgumentException("Neighborhood cannot be empty.");
         }
@@ -72,9 +69,6 @@ public class BTOProject {
         }
         if (officerSlot < 0) {
             throw new IllegalArgumentException("Officer slots cannot be negative.");
-        }
-        if (!Validator.isValidCommaSeparatedList(originalList)) {
-            throw new IllegalArgumentException("Invalid officer list: Must be a comma-separated list of valid names or empty.");
         }
         if (!Validator.isValidVisibility(visibility)) {
             throw new IllegalArgumentException("Invalid visibility: Must be 'on' or 'off'.");
@@ -357,10 +351,6 @@ public class BTOProject {
                     continue;
                 }
                 String projectName = row[0];
-                if (!Validator.isValidProjectName(projectName)) {
-                    System.out.println("Invalid project name in row: " + projectName);
-                    continue;
-                }
                 String neighborhood = row[1];
                 if (neighborhood == null || neighborhood.trim().isEmpty()) {
                     System.out.println("Empty neighborhood in row: " + String.join(",", row));
@@ -418,10 +408,6 @@ public class BTOProject {
                     continue;
                 }
                 String officerList = row[6 + roomCount * 3];
-                if (!Validator.isValidCommaSeparatedList(officerList)) {
-                    System.out.println("Invalid officer list in row: " + officerList);
-                    continue;
-                }
                 String visibility = row[7 + roomCount * 3];
                 if (!Validator.isValidVisibility(visibility)) {
                     System.out.println("Invalid visibility in row: " + visibility);
@@ -520,8 +506,11 @@ public class BTOProject {
         try (BufferedReader br = new BufferedReader(new FileReader(PROJECTS_CSV))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",", -1); // Preserve empty fields
-                if (parts.length >= 8 && parts[0].equals(updatedProject.getProjectName())) {
+                if (line.startsWith("\uFEFF")) {
+                    line = line.substring(1); // Remove BOM
+                }
+                String[] parts = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                if (parts[0].equals(updatedProject.getProjectName())) {
                     String[] filteredList = updatedProject.officerList.stream()
                             .filter(s -> s != null && !s.trim().isEmpty())
                             .toArray(String[]::new);

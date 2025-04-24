@@ -55,7 +55,6 @@ public class HDBOfficerPage {
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
             if (!scanner.hasNextInt()) {
-                System.out.println("❌ Invalid input: Please enter a number.");
                 scanner.nextLine(); // Clear invalid input
                 choice = -1; // Trigger default case
             } else {
@@ -64,38 +63,17 @@ public class HDBOfficerPage {
             }
 
             switch (choice) {
-                case 1:
-                    registerAsOfficer(scanner);
-                    break;
-                case 2:
-                    viewProjectDetails();
-                    break;
-                case 3:
-                    viewAndRespondToEnquiries(scanner);
-                    break;
-                case 4:
-                    viewApplications();
-                    break;
-                case 5:
-                    manageApplicantBookingStatus(scanner);
-                    break;
-                case 6:
-                    displayAvailableProjects();
-                    break;
-                case 7:
-                    applyForProject();
-                    break;
-                case 8:
-                    viewMyApplication();
-                    break;
-                case 9:
-                    withdrawApplication();
-                    break;
-                case 0:
-                    System.out.println("✅ Exiting HDB Officer Dashboard...");
-                    break;
-                default:
-                    System.out.println("❌ Invalid choice. Please try again.");
+                case 1 -> registerAsOfficer(scanner);
+                case 2 -> viewProjectDetails();
+                case 3 -> viewAndRespondToEnquiries(scanner);
+                case 4 -> viewApplications();
+                case 5 -> manageApplicantBookingStatus(scanner);
+                case 6 -> displayAvailableProjects();
+                case 7 -> applyForProject();
+                case 8 -> viewMyApplication();
+                case 9 -> withdrawApplication();
+                case 0 -> System.out.println("Exiting HDB Officer Dashboard...");
+                default -> System.out.println("Invalid choice. Please try again.");
             }
         } while (choice != 0);
 
@@ -114,18 +92,17 @@ public class HDBOfficerPage {
         System.out.print("Enter the project name to register for: ");
         String projectName = scanner.nextLine();
         if (projectName == null || projectName.trim().isEmpty()) {
-            System.out.println("❌ Project name cannot be null or empty.");
+            System.out.println("Project name cannot be null or empty.");
             return;
         }
         if (!Validator.isValidProjectName(projectName)) {
-            System.out.println("❌ Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
+            System.out.println("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
             return;
         }
         try {
             officer.registerForProject(projectName.trim());
-            System.out.println("✅ Successfully registered for project: " + projectName.trim());
         } catch (IllegalArgumentException e) {
-            System.out.println("❌ Failed to register for project: " + e.getMessage());
+            System.out.println("Failed to register for project: " + e.getMessage());
         }
     }
 
@@ -136,7 +113,7 @@ public class HDBOfficerPage {
         try {
             officer.viewAssignedProject();
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -152,9 +129,9 @@ public class HDBOfficerPage {
         }
         try {
             officer.respondToEnquiries(sc);
-            System.out.println("✅ Enquiry responses processed successfully.");
+            System.out.println("Enquiry responses processed successfully.");
         } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("❌ Failed to process enquiries: " + e.getMessage());
+            System.out.println("Failed to process enquiries: " + e.getMessage());
         }
     }
 
@@ -165,21 +142,23 @@ public class HDBOfficerPage {
         try {
             ArrayList<BTOApplication> applications = officer.getApplications();
             if (applications == null) {
-                System.out.println("❌ No applications available: Invalid project state.");
+                System.out.println("No applications available: Invalid project state.");
                 return;
             }
             if (applications.isEmpty()) {
-                System.out.println("❌ No successful applications found for your assigned project.");
+                System.out.println("No successful applications found for your assigned project.");
                 return;
             }
             System.out.println("Successful Applications:");
             for (BTOApplication application : applications) {
                 if ("Successful".equals(application.getStatus())) {
+                    System.out.println("---");
                     Applicant applicant = Applicant.getApplicantByNRIC(application.getApplicantNRIC());
                     if (applicant == null) {
-                        System.out.println("❌ Applicant not found for NRIC: " + application.getApplicantNRIC());
+                        System.out.println("Applicant not found for NRIC: " + application.getApplicantNRIC());
                         continue;
                     }
+                    System.out.println("Applicant Nric: " + applicant.getNric());
                     System.out.println("Applicant: " + applicant.getName());
                     System.out.println("Status: " + application.getStatus());
                     System.out.println("Flat Type: " + application.getFlatType());
@@ -187,7 +166,7 @@ public class HDBOfficerPage {
                 }
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -203,31 +182,31 @@ public class HDBOfficerPage {
         }
         BTOProject assignedProject = officer.getProjectAssigned();
         if (assignedProject == null) {
-            System.out.println("❌ You are not assigned to any project.");
+            System.out.println("You are not assigned to any project.");
             return;
         }
         System.out.print("Enter the applicant's NRIC to view booking status: ");
         String applicantNric = scanner.nextLine();
         if (applicantNric == null || applicantNric.trim().isEmpty()) {
-            System.out.println("❌ NRIC cannot be null or empty.");
+            System.out.println("NRIC cannot be null or empty.");
             return;
         }
         if (!Validator.isValidNRIC(applicantNric)) {
-            System.out.println("❌ Invalid NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
+            System.out.println("Invalid NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
             return;
         }
         BTOApplication application = BTOApplication.getApplicationByNRIC(applicantNric.trim());
         if (application == null) {
-            System.out.println("❌ No application found for NRIC: " + applicantNric.trim());
+            System.out.println("No application found for NRIC: " + applicantNric.trim());
             return;
         }
         if (!application.getProjectName().equals(assignedProject.getProjectName())) {
-            System.out.println("❌ Application is not for your assigned project: " + assignedProject.getProjectName());
+            System.out.println("Application is not for your assigned project: " + assignedProject.getProjectName());
             return;
         }
         Applicant applicant = Applicant.getApplicantByNRIC(applicantNric.trim());
         if (applicant == null) {
-            System.out.println("❌ Applicant not found for NRIC: " + applicantNric.trim());
+            System.out.println("Applicant not found for NRIC: " + applicantNric.trim());
             return;
         }
         System.out.println("Applicant: " + applicant.getName());
@@ -237,24 +216,24 @@ public class HDBOfficerPage {
             System.out.print("Do you want to update status to 'Booked'? (yes/no): ");
             String response = scanner.nextLine();
             if (response == null || response.trim().isEmpty()) {
-                System.out.println("❌ Response cannot be null or empty.");
+                System.out.println("Response cannot be null or empty.");
                 return;
             }
             response = response.trim().toLowerCase();
             if (!"yes".equals(response) && !"no".equals(response)) {
-                System.out.println("❌ Invalid response: Must be 'yes' or 'no'.");
+                System.out.println("Invalid response: Must be 'yes' or 'no'.");
                 return;
             }
             if ("yes".equals(response)) {
                 try {
                     officer.handleFlatSelection(application, application.getFlatType());
-                    System.out.println("✅ Booking status updated to 'Booked' for NRIC: " + applicantNric.trim());
+                    
                 } catch (IllegalArgumentException | IllegalStateException e) {
-                    System.out.println("❌ Failed to update booking status: " + e.getMessage());
+                    System.out.println("Failed to update booking status: " + e.getMessage());
                 }
             }
         } else {
-            System.out.println("❌ Application cannot be booked: Status is " + application.getStatus());
+            System.out.println("Application cannot be booked: Status is " + application.getStatus());
         }
     }
 
@@ -265,11 +244,11 @@ public class HDBOfficerPage {
         try {
             List<BTOProject> availableProjects = officer.viewAvailableProjects();
             if (availableProjects == null) {
-                System.out.println("❌ No available projects: Invalid eligibility state.");
+                System.out.println("No available projects: Invalid eligibility state.");
                 return;
             }
             if (availableProjects.isEmpty()) {
-                System.out.println("❌ No available projects found or you are not eligible.");
+                System.out.println("No available projects found or you are not eligible.");
                 return;
             }
             System.out.println("Available Projects:");
@@ -299,7 +278,7 @@ public class HDBOfficerPage {
                 System.out.println();
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -310,32 +289,32 @@ public class HDBOfficerPage {
         System.out.print("Enter the project name you want to apply for: ");
         String projectName = scanner.nextLine();
         if (projectName == null || projectName.trim().isEmpty()) {
-            System.out.println("❌ Project name cannot be null or empty.");
+            System.out.println("Project name cannot be null or empty.");
             return;
         }
         if (!Validator.isValidProjectName(projectName)) {
-            System.out.println("❌ Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
+            System.out.println("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
             return;
         }
         System.out.print("Enter the flat type (e.g., 2-Room, 3-Room): ");
         String flatType = scanner.nextLine();
         if (flatType == null || flatType.trim().isEmpty()) {
-            System.out.println("❌ Flat type cannot be null or empty.");
+            System.out.println("Flat type cannot be null or empty.");
             return;
         }
         if (!Validator.isValidFlatType(flatType)) {
-            System.out.println("❌ Invalid flat type: Must be a valid type (e.g., '2-Room', '3-Room').");
+            System.out.println("Invalid flat type: Must be a valid type (e.g., '2-Room', '3-Room').");
             return;
         }
         try {
             boolean success = officer.applyForProject(projectName.trim(), flatType.trim());
             if (success) {
-                System.out.println("✅ Successfully applied for project: " + projectName.trim());
+                System.out.println("Successfully applied for project: " + projectName.trim());
             } else {
-                System.out.println("❌ Failed to apply: You may have already applied or the project is unavailable.");
+                System.out.println("Failed to apply: You may have already applied or the project is unavailable.");
             }
         } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("❌ Failed to apply for project: " + e.getMessage());
+            System.out.println("Failed to apply for project: " + e.getMessage());
         }
     }
 
@@ -351,10 +330,10 @@ public class HDBOfficerPage {
                 System.out.println("Flat Type: " + application.getFlatType());
                 System.out.println("Status: " + application.getStatus());
             } else {
-                System.out.println("❌ You have not applied for any projects yet.");
+                System.out.println("You have not applied for any projects yet.");
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -365,12 +344,12 @@ public class HDBOfficerPage {
         try {
             boolean success = officer.requestWithdrawal();
             if (success) {
-                System.out.println("✅ Your application has been successfully withdrawn.");
+                System.out.println("Your application has been successfully withdrawn.");
             } else {
-                System.out.println("❌ You do not have an active application to withdraw.");
+                System.out.println("You do not have an active application to withdraw.");
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 }

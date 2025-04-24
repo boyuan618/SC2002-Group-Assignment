@@ -149,7 +149,6 @@ public class Applicant {
                     return new Applicant(name, nric, age, maritalStatus);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Error parsing user data for NRIC: " + nric);
-                    continue;
                 }
             }
         }
@@ -192,19 +191,23 @@ public class Applicant {
                             project.getOfficerList(),
                             project.getVisibility()
                         );
-
+                        
+                        ArrayList<Room> rooms = projectCopy.getRooms();
                         // If Single (Only two room)
                         if (getMaritalStatus().equalsIgnoreCase("Single")) {
-                            projectCopy.getRooms().removeIf(room -> room.getRoomType().equals("3-Room"));
+                            
+                            rooms.removeIf(room -> room.getRoomType().equals("3-Room"));
+                            
                         }
 
                         // Remove Rooms with no availability
-                        projectCopy.getRooms().removeIf(room -> room.getUnits() <= 0);
+                        rooms.removeIf(room -> room.getUnits() <= 0);
+                        projectCopy.setRooms(rooms);
 
                         if (!projectCopy.getRooms().isEmpty()) {
                             availableProjects.add(projectCopy);
                         }
-                    } else if (BTOApplication.getApplicationByNRIC(getNric()) != null) { // If applicant has applied
+                    } else if (BTOApplication.getApplicationByNRIC(getNric()) != null && BTOApplication.getApplicationByNRIC(getNric()).getProjectName().equals(project.getProjectName())) { // If applicant has applied
                         if (getMaritalStatus().equalsIgnoreCase("Single")) {
                             // Create a copy for viewing applied projects
                             BTOProject projectCopy = new BTOProject(
@@ -218,24 +221,14 @@ public class Applicant {
                                 project.getOfficerList(),
                                 project.getVisibility()
                             );
-                            projectCopy.getRooms().removeIf(room -> room.getRoomType().equals("3-Room"));
+                            ArrayList<Room> rooms = projectCopy.getRooms();
+                            rooms.removeIf(room -> room.getRoomType().equals("3-Room"));
+                            projectCopy.setRooms(rooms);
                             if (!projectCopy.getRooms().isEmpty()) {
                                 availableProjects.add(projectCopy);
                             }
                         } else {
-                            // Create a copy for married applicants to avoid modifying original
-                            BTOProject projectCopy = new BTOProject(
-                                project.getProjectName(),
-                                project.getNeighborhood(),
-                                new ArrayList<>(project.getRooms()),
-                                project.getOpenDate(),
-                                project.getCloseDate(),
-                                project.getManager(),
-                                project.getOfficerSlot(),
-                                project.getOfficerList(),
-                                project.getVisibility()
-                            );
-                            availableProjects.add(projectCopy);
+                            availableProjects.add(project);
                         }
 
                     }
@@ -343,7 +336,7 @@ public class Applicant {
             return null;
         }
         for (BTOApplication app : allApplications) {
-            if (app != null && app.getApplicantNRIC().equals(getNric())) {
+            if (app != null && app.getApplicantNRIC().equals(getNric()) && !app.getStatus().equals("Unsuccessful")) {
                 return app;
             }
         }
@@ -465,11 +458,6 @@ public class Applicant {
     public boolean deleteEnquiry(int index) {
         if (index < 0) {
             throw new IllegalArgumentException("Invalid index: Index must be non-negative.");
-        }
-        List<Enquiry> myEnquiries = viewMyEnquiries();
-        if (index >= myEnquiries.size()) {
-            System.out.println("Invalid enquiry index.");
-            return false;
         }
         boolean status = Enquiry.removeEnquiry(getNric(), index);
         if (status) {

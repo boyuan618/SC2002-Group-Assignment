@@ -123,7 +123,7 @@ public interface EnquiryInt {
 
         if (found && modified) {
             Enquiry.writeEnquiries(enquiries);
-            System.out.println("✅ Replies saved.");
+            System.out.println("Replies saved.");
         } else if (found && !modified) {
             System.out.println("No replies were added.");
         } else {

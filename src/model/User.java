@@ -69,8 +69,8 @@ public class User {
      */
     private boolean isValidRole(String role) {
         return role.equalsIgnoreCase("Applicant") ||
-               role.equalsIgnoreCase("Officer") ||
-               role.equalsIgnoreCase("Manager");
+               role.equalsIgnoreCase("HDBOfficer") ||
+               role.equalsIgnoreCase("HDBManager");
     }
 
     /**
@@ -210,7 +210,7 @@ public class User {
         try {
             this.password = newPassword.trim();
             updatePasswordInCSV();
-            System.out.println("✅ Password updated successfully.");
+            System.out.println("Password updated successfully.");
         } catch (RuntimeException e) {
             System.out.println("Error: Failed to update password: " + e.getMessage());
         }

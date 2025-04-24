@@ -1,7 +1,7 @@
 package model;
 
 import java.util.*;
-import utils.Validator;
+import utils.*;
 
 /**
  * Represents an HDB Project Manager responsible for managing BTO projects, officer registrations,
@@ -14,7 +14,7 @@ public class ProjectManager extends HDBManager {
     public static final String ENQUIRIES_CSV = "data/FlatEnquiries.csv";
     public static final String APPLICATIONS_CSV = "data/BTOApplications.csv";
 
-    private BTOProject project; // Project that this manager is handling
+    private static BTOProject project; // Project that this manager is handling
 
     /**
      * Constructs a ProjectManager with the specified details and assigns a project if the manager's
@@ -45,7 +45,7 @@ public class ProjectManager extends HDBManager {
             throw new IllegalArgumentException("Invalid marital status: Must be 'Single' or 'Married'.");
         }
 
-        this.project = null;
+        project = null;
         
         List<BTOProject> projects = BTOProject.getProjects();
         if (projects == null) {
@@ -58,7 +58,7 @@ public class ProjectManager extends HDBManager {
             }
             try {
                 if (projectlist.getManager().trim().equals(name)) {
-                    this.project = projectlist;
+                    project = projectlist;
                     break;
                 }
             } catch (Exception e) {
@@ -74,48 +74,99 @@ public class ProjectManager extends HDBManager {
      * @return A formatted string containing the report.
      * @throws IllegalArgumentException If the project name is invalid or non-existent.
      */
-    public String generateReport(String projectName) {
+    public String generateReport(String projectName, String filterType, String filterValue) {
         if (!Validator.isValidProjectName(projectName)) {
             throw new IllegalArgumentException("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
         }
-        if (BTOProject.getProjectByName(projectName) == null) {
+        BTOProject projecttoprint = BTOProject.getProjectByName(projectName);
+        if (projecttoprint == null) {
             throw new IllegalArgumentException("Project does not exist: " + projectName);
         }
-
+    
         List<BTOApplication> applications = BTOApplication.getApplications();
         if (applications == null) {
             System.out.println("Warning: Unable to retrieve applications.");
             return "Error: Unable to generate report due to missing application data.";
         }
-
+    
         Map<String, Integer> statusCount = new HashMap<>();
         Map<String, Integer> flatTypeCount = new HashMap<>();
-
+        List<String> matchingApplicants = new ArrayList<>();
+    
         for (BTOApplication app : applications) {
             if (app != null && projectName.equals(app.getProjectName())) {
+                Applicant applicant = Applicant.getApplicantByNRIC(app.getApplicantNRIC());
+                if (applicant == null) continue;
+    
+                // Apply optional filter
+                boolean match = true;
+                if (filterType != null && filterValue != null) {
+                    switch (filterType.toLowerCase()) {
+                        case "maritalstatus":
+                            match = filterValue.equalsIgnoreCase(applicant.getMaritalStatus());
+                            break;
+                        case "flattype":
+                            match = filterValue.equalsIgnoreCase(app.getFlatType());
+                            break;
+                        case "age":
+                            int appage = applicant.getAge();
+                            if ("35".equals(filterValue)) {
+                                match = appage >= 35; // Age >= 35
+                            } else if ("lessThan35".equals(filterValue)) {
+                                match = appage < 35; // Age < 35
+                            }
+                            break; // Add break here
+                        default:
+                            break;
+                    }
+                }
+    
+                if (!match) continue;
+    
+                // Tally counts
                 String status = app.getStatus() != null ? app.getStatus() : "<Unknown>";
                 String flatType = app.getFlatType() != null ? app.getFlatType() : "<Unknown>";
                 statusCount.merge(status, 1, Integer::sum);
                 flatTypeCount.merge(flatType, 1, Integer::sum);
+    
+                matchingApplicants.add("  - " + applicant.getName() + " | Flat Type: " + flatType +
+                        " | Age: " + applicant.getAge() + " | Marital Status: " + applicant.getMaritalStatus());
             }
         }
-
+    
         StringBuilder report = new StringBuilder();
         report.append("Report for Project: ").append(projectName).append("\n");
+        report.append("Filter: Age >= 35");
+        if (filterType != null && filterValue != null) {
+            report.append(", ").append(filterType).append(" = ").append(filterValue);
+        }
+        report.append("\n\n");
+    
         report.append("Applications by Status:\n");
         if (statusCount.isEmpty()) {
             report.append("  No applications found.\n");
         } else {
             statusCount.forEach((status, count) -> report.append("  ").append(status).append(": ").append(count).append("\n"));
         }
-        report.append("Applications by Flat Type:\n");
+    
+        report.append("\nApplications by Flat Type:\n");
         if (flatTypeCount.isEmpty()) {
             report.append("  No applications found.\n");
         } else {
             flatTypeCount.forEach((type, count) -> report.append("  ").append(type).append(": ").append(count).append("\n"));
         }
+    
+        report.append("\nMatching Applicants:\n");
+        if (matchingApplicants.isEmpty()) {
+            report.append("  No matching applicants found.\n");
+        } else {
+            matchingApplicants.forEach(line -> report.append(line).append("\n"));
+        }
+    
         return report.toString();
     }
+    
+    
 
     /**
      * Displays pending officer registration applications for the managed project.
@@ -186,11 +237,10 @@ public class ProjectManager extends HDBManager {
                         project.addOfficer(officer.getName());
                         BTOProject.editProject(project);
                         OfficerApplication.updateOfficerApplication(officerApp);
-                        System.out.println("✅ Officer approved for project: " + project.getProjectName());
                     } else {
                         officerApp.setStatus("Rejected");
                         OfficerApplication.updateOfficerApplication(officerApp);
-                        System.out.println("✅ Officer registration rejected for project: " + project.getProjectName());
+                        System.out.println("Officer registration rejected for project: " + project.getProjectName());
                     }
                     return;
                 } catch (RuntimeException e) {
@@ -253,11 +303,11 @@ public class ProjectManager extends HDBManager {
                         }
                         app.setStatus("Successful");
                         BTOApplication.updateBTOApplication(app);
-                        System.out.println("✅ Applicant approved for project: " + project.getProjectName());
+                        System.out.println("Applicant approved for project: " + project.getProjectName());
                     } else {
                         app.setStatus("Unsuccessful");
                         BTOApplication.updateBTOApplication(app);
-                        System.out.println("✅ Applicant rejected for project: " + project.getProjectName());
+                        System.out.println("Applicant rejected for project: " + project.getProjectName());
                     }
                     return;
                 } catch (RuntimeException e) {
@@ -269,34 +319,35 @@ public class ProjectManager extends HDBManager {
         System.out.println("Error: Pending application not found for NRIC: " + applicantNRIC);
     }
 
+    
     /**
-     * Approves or rejects an applicant's withdrawal request for the managed project.
+     * Approves a withdrawal request and deletes the associated application.
      *
-     * @param applicantNRIC The NRIC of the applicant.
-     * @param approve True to approve, false to reject.
-     * @throws IllegalArgumentException If the NRIC is invalid or the project is not assigned.
+     * @param req The withdrawal request to approve.
+     * @throws IllegalArgumentException If the request is invalid or not pending.
      */
-    public void approveRejectWithdrawal(String applicantNRIC, boolean approve) {
-        if (project == null) {
-            throw new IllegalArgumentException("No project assigned to this manager.");
+    public static void approveWithdrawal(WithdrawalRequest req) {
+        if (req == null) {
+            throw new IllegalArgumentException("Withdrawal request cannot be null.");
         }
-        if (!Validator.isValidNRIC(applicantNRIC)) {
-            throw new IllegalArgumentException("Invalid NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
+        if (!Validator.isValidNRIC(req.getApplicantNRIC())) {
+            throw new IllegalArgumentException("Invalid NRIC in withdrawal request: " + req.getApplicantNRIC());
         }
-
-        List<BTOApplication> applications = BTOApplication.getApplications();
-        if (applications == null) {
-            System.out.println("Warning: Unable to retrieve applications.");
-            return;
+        if (!req.getStatus().equalsIgnoreCase("Pending")) {
+            throw new IllegalArgumentException("Withdrawal request is not pending: " + req.getStatus());
         }
-
-        for (BTOApplication app : applications) {
-            if (app != null &&
-                project.getProjectName().equals(app.getProjectName()) &&
-                applicantNRIC.equals(app.getApplicantNRIC()) &&
-                ("Successful".equalsIgnoreCase(app.getStatus()) || "Booked".equalsIgnoreCase(app.getStatus()))) {
-                try {
-                    if (approve) {
+        try {
+            List<BTOApplication> applications = BTOApplication.getApplications();
+            if (applications == null) {
+                System.out.println("Warning: Unable to retrieve applications.");
+                return;
+            }
+            for (BTOApplication app : applications) {
+                if (app != null &&
+                    project.getProjectName().equals(app.getProjectName()) &&
+                    req.getApplicantNRIC().equals(app.getApplicantNRIC()) &&
+                    ("Successful".equalsIgnoreCase(app.getStatus()) || "Booked".equalsIgnoreCase(app.getStatus()))) {
+                    try {
                         List<Room> rooms = project.getRooms();
                         if (rooms == null || rooms.isEmpty()) {
                             System.out.println("Error: No room types available for project: " + project.getProjectName());
@@ -310,7 +361,9 @@ public class ProjectManager extends HDBManager {
                         boolean flatTypeFound = false;
                         for (Room type : rooms) {
                             if (type != null && flatType.equalsIgnoreCase(type.getRoomType())) {
-                                type.setUnits(type.getUnits() + 1);
+                                if ("Booked".equalsIgnoreCase(app.getStatus())) {
+                                    type.setUnits(type.getUnits() + 1);
+                                }
                                 flatTypeFound = true;
                                 break;
                             }
@@ -322,20 +375,81 @@ public class ProjectManager extends HDBManager {
                         app.setStatus("Unsuccessful");
                         BTOProject.editProject(project);
                         BTOApplication.updateBTOApplication(app);
-                        System.out.println("✅ Applicant withdrawal approved for project: " + project.getProjectName());
-                    } else {
-                        System.out.println("Applicant withdrawal rejected for project: " + project.getProjectName());
+                        System.out.println("Applicant withdrawal approved for project: " + project.getProjectName());
+                    } catch (RuntimeException e) {
+                        System.out.println("Error processing withdrawal: " + e.getMessage());
+                        return;
                     }
-                    return;
-                } catch (RuntimeException e) {
-                    System.out.println("Error processing withdrawal: " + e.getMessage());
-                    return;
                 }
             }
+            updateWithdrawalStatus(req.getApplicantNRIC(), "Approved");
+            System.out.println("Withdrawal approved for NRIC: " + req.getApplicantNRIC());
+        } catch (RuntimeException e) {
+            System.out.println("Error approving withdrawal: " + e.getMessage());
         }
-        System.out.println("Error: Withdrawable application not found for NRIC: " + applicantNRIC);
     }
 
+    /**
+     * Rejects a withdrawal request.
+     *
+     * @param req The withdrawal request to reject.
+     * @throws IllegalArgumentException If the request is invalid or not pending.
+     */
+    public static void rejectWithdrawal(WithdrawalRequest req) {
+        if (req == null) {
+            throw new IllegalArgumentException("Withdrawal request cannot be null.");
+        }
+        if (!Validator.isValidNRIC(req.getApplicantNRIC())) {
+            throw new IllegalArgumentException("Invalid NRIC in withdrawal request: " + req.getApplicantNRIC());
+        }
+        if (!req.getStatus().equalsIgnoreCase("Pending")) {
+            throw new IllegalArgumentException("Withdrawal request is not pending: " + req.getStatus());
+        }
+        try {
+            updateWithdrawalStatus(req.getApplicantNRIC(), "Rejected");
+            System.out.println("Withdrawal rejected for NRIC: " + req.getApplicantNRIC());
+        } catch (RuntimeException e) {
+            System.out.println("Error rejecting withdrawal: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Updates the status of a withdrawal request in the CSV file.
+     *
+     * @param nric The NRIC of the applicant.
+     * @param newStatus The new status ("Approved" or "Rejected").
+     * @throws IllegalArgumentException If the NRIC or status is invalid.
+     */
+    private static void updateWithdrawalStatus(String nric, String newStatus) {
+        if (!Validator.isValidNRIC(nric)) {
+            throw new IllegalArgumentException("Invalid NRIC: " + nric);
+        }
+        if (newStatus == null || (!newStatus.equalsIgnoreCase("Approved") && !newStatus.equalsIgnoreCase("Rejected"))) {
+            throw new IllegalArgumentException("Invalid status: Must be 'Approved' or 'Rejected'.");
+        }
+        ArrayList<String[]> rows = new ArrayList<>();
+        boolean updated = false;
+        ArrayList<WithdrawalRequest> requests = WithdrawalRequest.getWithdrawalRequests();
+        System.out.println(requests.size());
+        for (WithdrawalRequest request : requests) {
+            if (request.getApplicantNRIC().equals(nric) && request.getStatus().equalsIgnoreCase("Pending")) {
+                request.setStatus(newStatus);
+                updated = true;
+            }
+            String[] row = {request.getApplicantNRIC(), request.getProjectName(), request.getFlatType(), request.getStatus()};
+            rows.add(row);
+            break;
+            
+        }
+        if (!updated) {
+            throw new IllegalArgumentException("No pending withdrawal found for NRIC: " + nric);
+        }
+        try {
+            CSVUtils.writeCSV("data/withdrawals.csv", rows);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Error writing to withdrawals CSV: " + e.getMessage());
+        }
+    }
     /**
      * Gets the project managed by this manager.
      *

@@ -33,7 +33,7 @@ public class ProjectManagerController extends HDBManagerController {
      * @return The formatted report string.
      * @throws IllegalArgumentException If the project name is invalid or not managed by this manager.
      */
-    public String generateReport(String projectName) {
+    public String generateReport(String projectName,String filterType, String filterValue) {
         if (!Validator.isValidProjectName(projectName)) {
             throw new IllegalArgumentException("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
         }
@@ -42,7 +42,7 @@ public class ProjectManagerController extends HDBManagerController {
             throw new IllegalArgumentException("Project does not exist or is not managed by this manager: " + projectName.trim());
         }
         try {
-            return ((ProjectManager) hdbManager).generateReport(projectName.trim());
+            return ((ProjectManager) hdbManager).generateReport(projectName.trim(),filterType,filterValue);
         } catch (Exception e) {
             throw new RuntimeException("Error generating report: " + e.getMessage());
         }
@@ -94,7 +94,7 @@ public class ProjectManagerController extends HDBManagerController {
             throw new IllegalArgumentException("No pending officer application found for NRIC: " + officerNRIC.trim() + " in managed project.");
         }
         ((ProjectManager) hdbManager).approveRejectOfficer(officerNRIC.trim(), approve);
-        System.out.println("✅ Officer registration " + (approve ? "approved" : "rejected") + " for NRIC: " + officerNRIC.trim());
+        System.out.println("Officer registration " + (approve ? "approved" : "rejected") + " for NRIC: " + officerNRIC.trim());
     }
 
     /**
@@ -113,7 +113,7 @@ public class ProjectManagerController extends HDBManagerController {
         }
         // Placeholder logic; replace with actual implementation
         System.out.println("Enquiry management not fully implemented.");
-        // Example: ((ProjectManager) hdbManager).viewAndReplyEnquiries(sc);
+        hdbManager.viewAndReplyEnquiries(sc, ((ProjectManager) hdbManager).getProjectManaging().getProjectName());
     }
 
     /**
@@ -160,7 +160,7 @@ public class ProjectManagerController extends HDBManagerController {
             throw new IllegalArgumentException("No BTO application found for NRIC: " + applicantNRIC.trim() + " in managed project.");
         }
         ((ProjectManager) hdbManager).approveRejectApplication(applicantNRIC.trim(), approve);
-        System.out.println("✅ BTO application " + (approve ? "approved" : "rejected") + " for NRIC: " + applicantNRIC.trim());
+        System.out.println("BTO application " + (approve ? "approved" : "rejected") + " for NRIC: " + applicantNRIC.trim());
     }
 
     /**
@@ -172,4 +172,25 @@ public class ProjectManagerController extends HDBManagerController {
         return ((ProjectManager) hdbManager).getProjectManaging();
     }
 
+    /**
+     * Approves or rejects a BTO withdrawal request.
+     *
+     * @param applicantNRIC The NRIC of the applicant.
+     * @param approve True to approve, false to reject.
+     * @throws IllegalArgumentException If the applicant NRIC is invalid or not found.
+     */
+    public void approveRejectBTOWithdrawal(String applicantNRIC, boolean approve) {
+        if (!Validator.isValidNRIC(applicantNRIC)) {
+            throw new IllegalArgumentException("Invalid applicant NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
+        }
+        WithdrawalRequest req = WithdrawalRequest.getWithdrawalRequestByNric(applicantNRIC);
+        if (req != null) {
+            if (approve) {
+                ProjectManager.approveWithdrawal(req);
+            } else {
+                ProjectManager.rejectWithdrawal(req);
+            }
+        }
+
+    }
 }

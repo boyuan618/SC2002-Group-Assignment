@@ -226,7 +226,7 @@ public class OfficerApplication {
 
         try {
             CSVUtils.writeCSV(OFFICERAPPLICATION_CSV, rows);
-            System.out.println("✅ Officer application updated successfully.");
+            System.out.println("Officer application updated successfully.");
         } catch (RuntimeException e) {
             System.out.println("Error updating officer application: " + e.getMessage());
             throw new RuntimeException("Failed to write to officer applications CSV: " + e.getMessage());
@@ -269,7 +269,7 @@ public class OfficerApplication {
 
         try {
             CSVUtils.appendToCSV(OFFICERAPPLICATION_CSV, newApp.toCSV());
-            System.out.println("✅ Officer application created successfully.");
+            System.out.println("Officer application created successfully.");
         } catch (RuntimeException e) {
             System.out.println("Error creating officer application: " + e.getMessage());
             throw new RuntimeException("Failed to append to officer applications CSV: " + e.getMessage());

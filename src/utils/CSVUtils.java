@@ -113,7 +113,6 @@ public class CSVUtils {
             }
             bw.write(line.toString());
             bw.write(System.lineSeparator());
-            System.out.println("✅ Successfully appended row to " + filepath);
         } catch (IOException e) {
             throw new RuntimeException("Error appending to CSV file: " + filepath + " - " + e.getMessage());
         }
@@ -165,7 +164,7 @@ public class CSVUtils {
         }
 
         writeCSV(filepath, data);
-        System.out.println("✅ Successfully updated row in " + filepath);
+        System.out.println("Successfully updated row in " + filepath);
     }
 
     /**

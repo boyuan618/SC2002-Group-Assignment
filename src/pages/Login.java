@@ -34,7 +34,7 @@ public class Login {
                     break;
                 }
                 if (!Validator.isValidNRIC(nric)) {
-                    System.out.println("❌ Invalid NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
+                    System.out.println("Invalid NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
                     continue;
                 }
 
@@ -45,7 +45,7 @@ public class Login {
                 }
                 password = password.trim();
                 if (password.isEmpty()) {
-                    System.out.println("❌ Password cannot be empty.");
+                    System.out.println("Password cannot be empty.");
                     continue;
                 }
 
@@ -54,10 +54,10 @@ public class Login {
                     if (user == null) {
                         throw new IllegalStateException("Login failed: Invalid NRIC or password.");
                     }
-                    System.out.println("✅ Login successful for " + user.getName() + " (" + user.getRole() + ")");
+                    System.out.println("Login successful for " + user.getName() + " (" + user.getRole() + ")");
                     launchRoleInterface(user);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("❌ Login failed: " + e.getMessage());
+                    System.out.println("Login failed: " + e.getMessage());
                 }
                 
             }
@@ -82,12 +82,12 @@ public class Login {
                 ApplicantPage applicantPage = new ApplicantPage(applicant);
                 applicantPage.displayMenu();
                 break;
-            case "Officer":
+            case "HDBOfficer":
                 HDBOfficerController officer = new HDBOfficerController(user);
                 HDBOfficerPage officerPage = new HDBOfficerPage(officer);
                 officerPage.displayMenu();
                 break;
-            case "Manager":
+            case "HDBManager":
                 ProjectManagerController manager = new ProjectManagerController(user);
                 HDBManagerPage managerPage = new HDBManagerPage(manager);
                 managerPage.displayMenu();

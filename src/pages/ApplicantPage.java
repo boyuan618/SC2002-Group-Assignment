@@ -54,7 +54,6 @@ public class ApplicantPage {
             System.out.println("0. Logout");
             System.out.print("Enter your choice: ");
             if (!scanner.hasNextInt()) {
-                System.out.println("❌ Invalid input: Please enter a number.");
                 scanner.nextLine(); // Clear invalid input
                 choice = -1; // Trigger default case
             } else {
@@ -63,35 +62,16 @@ public class ApplicantPage {
             }
 
             switch (choice) {
-                case 1:
-                    displayAvailableProjects();
-                    break;
-                case 2:
-                    applyForProject();
-                    break;
-                case 3:
-                    viewMyApplication();
-                    break;
-                case 4:
-                    withdrawApplication();
-                    break;
-                case 5:
-                    submitEnquiry();
-                    break;
-                case 6:
-                    viewMyEnquiries();
-                    break;
-                case 7:
-                    editEnquiry();
-                    break;
-                case 8:
-                    deleteEnquiry();
-                    break;
-                case 0:
-                    System.out.println("✅ Logging out...");
-                    break;
-                default:
-                    System.out.println("❌ Invalid choice. Please try again.");
+                case 1 -> displayAvailableProjects();
+                case 2 -> applyForProject();
+                case 3 -> viewMyApplication();
+                case 4 -> withdrawApplication();
+                case 5 -> submitEnquiry();
+                case 6 -> viewMyEnquiries();
+                case 7 -> editEnquiry();
+                case 8 -> deleteEnquiry();
+                case 0 -> System.out.println("Logging out...");
+                default -> System.out.println("Invalid choice. Please try again.");
             }
         } while (choice != 0);
     }
@@ -103,11 +83,11 @@ public class ApplicantPage {
         try {
             List<BTOProject> availableProjects = controller.viewAvailableProjects();
             if (availableProjects == null) {
-                System.out.println("❌ No available projects: Invalid eligibility state.");
+                System.out.println("No available projects: Invalid eligibility state.");
                 return;
             }
             if (availableProjects.isEmpty()) {
-                System.out.println("❌ No available projects found or you are not eligible.");
+                System.out.println("No available projects found or you are not eligible.");
                 return;
             }
             System.out.println("Available Projects:");
@@ -130,7 +110,7 @@ public class ApplicantPage {
                 System.out.println();
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -141,32 +121,32 @@ public class ApplicantPage {
         System.out.print("Enter the project name you want to apply for: ");
         String projectName = scanner.nextLine();
         if (projectName == null || projectName.trim().isEmpty()) {
-            System.out.println("❌ Project name cannot be null or empty.");
+            System.out.println("Project name cannot be null or empty.");
             return;
         }
         if (!Validator.isValidProjectName(projectName)) {
-            System.out.println("❌ Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
+            System.out.println("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
             return;
         }
         System.out.print("Enter the flat type (e.g., 2-Room, 3-Room): ");
         String flatType = scanner.nextLine();
         if (flatType == null || flatType.trim().isEmpty()) {
-            System.out.println("❌ Flat type cannot be null or empty.");
+            System.out.println("Flat type cannot be null or empty.");
             return;
         }
         if (!Validator.isValidFlatType(flatType)) {
-            System.out.println("❌ Invalid flat type: Must be a valid type (e.g., '2-Room', '3-Room').");
+            System.out.println("Invalid flat type: Must be a valid type (e.g., '2-Room', '3-Room').");
             return;
         }
         try {
             boolean success = controller.applyForProject(projectName.trim(), flatType.trim());
             if (success) {
-                System.out.println("✅ Successfully applied for project: " + projectName.trim());
+                System.out.println("Successfully applied for project: " + projectName.trim());
             } else {
-                System.out.println("❌ Failed to apply: You may have already applied or the project is unavailable.");
+                System.out.println("Failed to apply: You may have already applied or the project is unavailable.");
             }
         } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("❌ Failed to apply for project: " + e.getMessage());
+            System.out.println("Failed to apply for project: " + e.getMessage());
         }
     }
 
@@ -182,10 +162,10 @@ public class ApplicantPage {
                 System.out.println("Flat Type: " + application.getFlatType());
                 System.out.println("Status: " + application.getStatus());
             } else {
-                System.out.println("❌ You have not applied for any projects yet.");
+                System.out.println("You have no active applications for any projects yet.");
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -195,13 +175,8 @@ public class ApplicantPage {
     public void withdrawApplication() {
         try {
             boolean success = controller.requestWithdrawal();
-            if (success) {
-                System.out.println("✅ Your application has been successfully withdrawn.");
-            } else {
-                System.out.println("❌ You do not have an active application to withdraw.");
-            }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -212,34 +187,34 @@ public class ApplicantPage {
         System.out.print("Enter the project name: ");
         String project = scanner.nextLine();
         if (project == null || project.trim().isEmpty()) {
-            System.out.println("❌ Project name cannot be null or empty.");
+            System.out.println("Project name cannot be null or empty.");
             return;
         }
         if (!Validator.isValidProjectName(project)) {
-            System.out.println("❌ Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
+            System.out.println("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
             return;
         }
         System.out.print("Enter the title of your enquiry: ");
         String title = scanner.nextLine();
         if (title == null || title.trim().isEmpty()) {
-            System.out.println("❌ Enquiry title cannot be null or empty.");
+            System.out.println("Enquiry title cannot be null or empty.");
             return;
         }
         System.out.print("Enter the details of your enquiry: ");
         String detail = scanner.nextLine();
         if (detail == null || detail.trim().isEmpty()) {
-            System.out.println("❌ Enquiry detail cannot be null or empty.");
+            System.out.println("Enquiry detail cannot be null or empty.");
             return;
         }
         try {
             boolean success = controller.submitEnquiry(project.trim(), title.trim(), detail.trim());
             if (success) {
-                System.out.println("✅ Your enquiry has been successfully submitted.");
+                System.out.println("Your enquiry has been successfully submitted.");
             } else {
-                System.out.println("❌ Failed to submit your enquiry.");
+                System.out.println("Failed to submit your enquiry.");
             }
         } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("❌ Failed to submit enquiry: " + e.getMessage());
+            System.out.println("Failed to submit enquiry: " + e.getMessage());
         }
     }
 
@@ -250,11 +225,11 @@ public class ApplicantPage {
         try {
             List<Enquiry> enquiries = controller.viewMyEnquiries();
             if (enquiries == null) {
-                System.out.println("❌ No enquiries available: Invalid applicant state.");
+                System.out.println("No enquiries available: Invalid applicant state.");
                 return;
             }
             if (enquiries.isEmpty()) {
-                System.out.println("❌ You have no enquiries.");
+                System.out.println("You have no enquiries.");
                 return;
             }
             System.out.println("Your Enquiries:");
@@ -264,7 +239,7 @@ public class ApplicantPage {
                         " | Response: " + enquiry.getResponse());
             }
         } catch (IllegalStateException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("" + e.getMessage());
         }
     }
 
@@ -275,46 +250,46 @@ public class ApplicantPage {
         try {
             List<Enquiry> enquiries = controller.viewMyEnquiries();
             if (enquiries == null) {
-                System.out.println("❌ No enquiries available: Invalid applicant state.");
+                System.out.println("No enquiries available: Invalid applicant state.");
                 return;
             }
             if (enquiries.isEmpty()) {
-                System.out.println("❌ You have no enquiries to edit.");
+                System.out.println("You have no enquiries to edit.");
                 return;
             }
             System.out.print("Enter the index of the enquiry you want to edit: ");
             int index;
             if (!scanner.hasNextInt()) {
-                System.out.println("❌ Invalid input: Index must be a number.");
+                System.out.println("Invalid input: Index must be a number.");
                 scanner.nextLine(); // Clear invalid input
                 return;
             }
             index = scanner.nextInt();
             scanner.nextLine(); // Consume newline
             if (index < 0 || index >= enquiries.size()) {
-                System.out.println("❌ Invalid index: Must be between 0 and " + (enquiries.size() - 1) + ".");
+                System.out.println("Invalid index: Must be between 0 and " + (enquiries.size() - 1) + ".");
                 return;
             }
             System.out.print("Enter the new title: ");
             String newTitle = scanner.nextLine();
             if (newTitle == null || newTitle.trim().isEmpty()) {
-                System.out.println("❌ New title cannot be null or empty.");
+                System.out.println("New title cannot be null or empty.");
                 return;
             }
             System.out.print("Enter the new detail: ");
             String newDetail = scanner.nextLine();
             if (newDetail == null || newDetail.trim().isEmpty()) {
-                System.out.println("❌ New detail cannot be null or empty.");
+                System.out.println("New detail cannot be null or empty.");
                 return;
             }
             boolean success = controller.editEnquiry(index, newTitle.trim(), newDetail.trim());
             if (success) {
-                System.out.println("✅ Your enquiry has been successfully updated.");
+                System.out.println("Your enquiry has been successfully updated.");
             } else {
-                System.out.println("❌ Failed to update your enquiry.");
+                System.out.println("Failed to update your enquiry.");
             }
         } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("❌ Failed to edit enquiry: " + e.getMessage());
+            System.out.println("Failed to edit enquiry: " + e.getMessage());
         }
     }
 
@@ -325,34 +300,34 @@ public class ApplicantPage {
         try {
             List<Enquiry> enquiries = controller.viewMyEnquiries();
             if (enquiries == null) {
-                System.out.println("❌ No enquiries available: Invalid applicant state.");
+                System.out.println("No enquiries available: Invalid applicant state.");
                 return;
             }
             if (enquiries.isEmpty()) {
-                System.out.println("❌ You have no enquiries to delete.");
+                System.out.println("You have no enquiries to delete.");
                 return;
             }
             System.out.print("Enter the index of the enquiry you want to delete: ");
             int index;
             if (!scanner.hasNextInt()) {
-                System.out.println("❌ Invalid input: Index must be a number.");
+                System.out.println("Invalid input: Index must be a number.");
                 scanner.nextLine(); // Clear invalid input
                 return;
             }
             index = scanner.nextInt();
             scanner.nextLine(); // Consume newline
             if (index < 0 || index >= enquiries.size()) {
-                System.out.println("❌ Invalid index: Must be between 0 and " + (enquiries.size() - 1) + ".");
+                System.out.println("Invalid index: Must be between 0 and " + (enquiries.size() - 1) + ".");
                 return;
             }
             boolean success = controller.deleteEnquiry(index);
             if (success) {
-                System.out.println("✅ Your enquiry has been successfully deleted.");
+                System.out.println("Your enquiry has been successfully deleted.");
             } else {
-                System.out.println("❌ Failed to delete your enquiry.");
+                System.out.println("Failed to delete your enquiry.");
             }
         } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("❌ Failed to delete enquiry: " + e.getMessage());
+            System.out.println("Failed to delete enquiry: " + e.getMessage());
         }
     }
 }

@@ -119,7 +119,7 @@ public class HDBManager extends User implements EnquiryInt {
             BTOProject newProject = new BTOProject(projectName, neighborhood, rooms, openDate, closeDate, this.getName(),
                     officerSlot, officerList, visibility);
             BTOProject.addProject(newProject);
-            System.out.println("✅ Project created successfully: " + projectName);
+            System.out.println("Project created successfully: " + projectName);
             return newProject;
         } catch (IllegalArgumentException e) {
             System.out.println("Error creating project: " + e.getMessage());
@@ -180,7 +180,6 @@ public class HDBManager extends User implements EnquiryInt {
         }
         try {
             BTOProject.editProject(project);
-            System.out.println("✅ Project updated successfully: " + project.getProjectName());
         } catch (RuntimeException e) {
             System.out.println("Error updating project: " + e.getMessage());
         }
@@ -205,7 +204,6 @@ public class HDBManager extends User implements EnquiryInt {
         }
         try {
             BTOProject.deleteProject(projectName);
-            System.out.println("✅ Project deleted successfully: " + projectName);
         } catch (RuntimeException e) {
             System.out.println("Error deleting project: " + e.getMessage());
         }
@@ -235,7 +233,7 @@ public class HDBManager extends User implements EnquiryInt {
         try {
             project.setVisibility(visibility);
             editProject(project);
-            System.out.println("✅ Visibility updated to " + visibility + " for project: " + projectName);
+            System.out.println("Visibility updated to " + visibility + " for project: " + projectName);
         } catch (IllegalArgumentException e) {
             System.out.println("Error updating visibility: " + e.getMessage());
         }
@@ -266,91 +264,6 @@ public class HDBManager extends User implements EnquiryInt {
         
         return pending;
 
-    }
-
-    /**
-     * Approves a withdrawal request and deletes the associated application.
-     *
-     * @param req The withdrawal request to approve.
-     * @throws IllegalArgumentException If the request is invalid or not pending.
-     */
-    public static void approveWithdrawal(WithdrawalRequest req) {
-        if (req == null) {
-            throw new IllegalArgumentException("Withdrawal request cannot be null.");
-        }
-        if (!Validator.isValidNRIC(req.getApplicantNRIC())) {
-            throw new IllegalArgumentException("Invalid NRIC in withdrawal request: " + req.getApplicantNRIC());
-        }
-        if (!req.getStatus().equalsIgnoreCase("Pending")) {
-            throw new IllegalArgumentException("Withdrawal request is not pending: " + req.getStatus());
-        }
-        try {
-            BTOApplication.deleteApplicationByNRIC(req.getApplicantNRIC());
-            updateWithdrawalStatus(req.getApplicantNRIC(), "Approved");
-            System.out.println("✅ Withdrawal approved for NRIC: " + req.getApplicantNRIC());
-        } catch (RuntimeException e) {
-            System.out.println("Error approving withdrawal: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Rejects a withdrawal request.
-     *
-     * @param req The withdrawal request to reject.
-     * @throws IllegalArgumentException If the request is invalid or not pending.
-     */
-    public static void rejectWithdrawal(WithdrawalRequest req) {
-        if (req == null) {
-            throw new IllegalArgumentException("Withdrawal request cannot be null.");
-        }
-        if (!Validator.isValidNRIC(req.getApplicantNRIC())) {
-            throw new IllegalArgumentException("Invalid NRIC in withdrawal request: " + req.getApplicantNRIC());
-        }
-        if (!req.getStatus().equalsIgnoreCase("Pending")) {
-            throw new IllegalArgumentException("Withdrawal request is not pending: " + req.getStatus());
-        }
-        try {
-            updateWithdrawalStatus(req.getApplicantNRIC(), "Rejected");
-            System.out.println("✅ Withdrawal rejected for NRIC: " + req.getApplicantNRIC());
-        } catch (RuntimeException e) {
-            System.out.println("Error rejecting withdrawal: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Updates the status of a withdrawal request in the CSV file.
-     *
-     * @param nric The NRIC of the applicant.
-     * @param newStatus The new status ("Approved" or "Rejected").
-     * @throws IllegalArgumentException If the NRIC or status is invalid.
-     */
-    private static void updateWithdrawalStatus(String nric, String newStatus) {
-        if (!Validator.isValidNRIC(nric)) {
-            throw new IllegalArgumentException("Invalid NRIC: " + nric);
-        }
-        if (newStatus == null || (!newStatus.equalsIgnoreCase("Approved") && !newStatus.equalsIgnoreCase("Rejected"))) {
-            throw new IllegalArgumentException("Invalid status: Must be 'Approved' or 'Rejected'.");
-        }
-        List<String[]> rows = CSVUtils.readCSV("data/withdrawals.csv");
-        if (rows == null) {
-            throw new RuntimeException("Unable to read withdrawals CSV.");
-        }
-        boolean updated = false;
-        for (String[] row : rows) {
-            if (row.length >= 4 && row[0].equals(nric) && row[3].equalsIgnoreCase("Pending")) {
-                row[3] = newStatus;
-                updated = true;
-                break;
-            }
-        }
-        if (!updated) {
-            throw new IllegalArgumentException("No pending withdrawal found for NRIC: " + nric);
-        }
-        try {
-            CSVUtils.writeCSV("data/withdrawals.csv", rows);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Error writing to withdrawals CSV: " + e.getMessage());
-        }
     }
 
     /**
@@ -477,7 +390,7 @@ public class HDBManager extends User implements EnquiryInt {
         if (found && modified) {
             try {
                 Enquiry.writeEnquiries(enquiries);
-                System.out.println("✅ Replies saved.");
+                System.out.println("Replies saved.");
             } catch (RuntimeException e) {
                 System.out.println("Error saving replies: " + e.getMessage());
             }

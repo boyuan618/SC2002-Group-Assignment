@@ -200,36 +200,6 @@ public class BTOApplication {
         System.out.println("Flat application submitted successfully.");
     }
 
-    /**
-     * Applies for a flat using NRIC and project name.
-     *
-     * @param applicantNRIC The NRIC of the applicant.
-     * @param project The name of the project.
-     * @param flatType The type of flat to apply for.
-     * @throws IllegalArgumentException If any input is invalid or applicant/project not found.
-     */
-    public static void applyForFlat(String applicantNRIC, String project, String flatType) {
-        if (!Validator.isValidNRIC(applicantNRIC)) {
-            throw new IllegalArgumentException("Invalid NRIC: Must start with S or T, followed by 7 digits and a capital letter.");
-        }
-        if (project == null || project.trim().isEmpty()) {
-            throw new IllegalArgumentException("Project name cannot be empty.");
-        }
-        if (!Validator.isValidFlatType(flatType)) {
-            throw new IllegalArgumentException("Invalid flat type: Must be '2-Room' or '3-Room'.");
-        }
-        Applicant applicant = Applicant.getApplicantByNRIC(applicantNRIC);
-        if (applicant == null) {
-            throw new IllegalArgumentException("Applicant not found for NRIC: " + applicantNRIC);
-        }
-        BTOProject btoProject = BTOProject.getProjectByName(project);
-        if (btoProject == null) {
-            throw new IllegalArgumentException("Project not found: " + project);
-        }
-        BTOApplication application = new BTOApplication(applicant, btoProject, flatType, "Pending");
-        CSVUtils.appendToCSV(APPLICATIONS_CSV, application.toCSVRow());
-        System.out.println("Flat application submitted successfully.");
-    }
 
     /**
      * Updates an existing BTO application in the CSV file.

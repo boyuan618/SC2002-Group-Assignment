@@ -3,3 +3,4 @@ ProjectList -> Project Name,Neighborhood,[Type X,Number of units for Type X,Sell
 FlatApplications -> ApplicantNRIC,Project,FlatType,Status
 FlatEnquiries -> id,nric,Project Name,title,details,response
 OfficerApplication -> OfficerNRIC,Project,Status
+withdrawals -> nric,project,roomtype,status

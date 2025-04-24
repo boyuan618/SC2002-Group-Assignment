@@ -51,7 +51,7 @@ public class HDBManagerController {
      */
     public BTOProject createNewProject(String projectName, String neighborhood, ArrayList<Room> rooms, String openDate,
             String closeDate, int officerSlot, String officerList, String visibility) {
-        if (!Validator.isValidProjectName(projectName)) {
+        if (Validator.isValidProjectName(projectName)) {
             throw new IllegalArgumentException("Invalid project name: Must be non-empty and contain only letters, numbers, and spaces.");
         }
         if (neighborhood == null || neighborhood.trim().isEmpty()) {
@@ -113,7 +113,7 @@ public class HDBManagerController {
         }
 
         if (selected == null) {
-            System.out.println("❌ You do not have permission to edit this project or it does not exist.");
+            System.out.println("You do not have permission to edit this project or it does not exist.");
             return;
         }
 
@@ -128,8 +128,19 @@ public class HDBManagerController {
             selected.setNeighborhood(neighborhood);
         }
 
-        int count = 0;
-        for (Room type : selected.getRooms()) {
+        int count = 1;
+        Iterator<Room> iterator = selected.getRooms().iterator();
+        while (iterator.hasNext()) {
+            Room type = iterator.next();
+        
+            System.out.print("Keep Room Type " + count + " [" + type.getRoomType() + "]? (yes/no): ");
+            String keep = sc.nextLine().trim().toLowerCase();
+            if (keep.equals("no")) {
+                iterator.remove();
+                System.out.println("Room Type " + count + " removed.");
+                continue;
+            }
+        
             System.out.print("New Type " + count + " [" + type.getRoomType() + "]: ");
             String type1 = sc.nextLine().trim();
             if (!type1.isEmpty()) {
@@ -138,7 +149,7 @@ public class HDBManagerController {
                 }
                 type.setRoomType(type1);
             }
-
+        
             System.out.print("New Units for Type " + count + " [" + type.getUnits() + "]: ");
             String units1 = sc.nextLine().trim();
             if (!units1.isEmpty()) {
@@ -152,7 +163,7 @@ public class HDBManagerController {
                     throw new IllegalArgumentException("Invalid units: Must be a valid integer.");
                 }
             }
-
+        
             System.out.print("New Price for Type " + count + " [" + type.getPrice() + "]: ");
             String price1 = sc.nextLine().trim();
             if (!price1.isEmpty()) {
@@ -168,6 +179,48 @@ public class HDBManagerController {
             }
             count++;
         }
+        
+        // Ask to add new types
+        while (true) {
+            System.out.print("Do you want to add a new room type? (yes/no): ");
+            String addMore = sc.nextLine().trim().toLowerCase();
+            if (!addMore.equals("yes")) break;
+        
+            System.out.print("Enter new room type: ");
+            String newType = sc.nextLine().trim();
+            if (!Validator.isValidFlatType(newType)) {
+                System.out.println("Invalid room type.");
+                continue;
+            }
+        
+            System.out.print("Enter units for " + newType + ": ");
+            String newUnitsStr = sc.nextLine().trim();
+            int newUnits;
+            try {
+                newUnits = Integer.parseInt(newUnitsStr);
+                if (newUnits < 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid units.");
+                continue;
+            }
+        
+            System.out.print("Enter price for " + newType + ": ");
+            String newPriceStr = sc.nextLine().trim();
+            int newPrice;
+            try {
+                newPrice = Integer.parseInt(newPriceStr);
+                if (newPrice < 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid price.");
+                continue;
+            }
+            
+            ArrayList<Room> rooms = selected.getRooms();
+            rooms.add(new Room(newType, newUnits, newPrice));
+            selected.setRooms(rooms);
+            System.out.println("New room type added.");
+        }
+        
 
         System.out.print("New Application Opening Date [" + selected.getOpenDate() + "]: ");
         String openDateStr = sc.nextLine().trim();
@@ -220,7 +273,6 @@ public class HDBManagerController {
         }
 
         hdbManager.editProject(selected);
-        System.out.println("✅ Project updated successfully: " + selected.getProjectName());
     }
 
     /**
@@ -238,7 +290,6 @@ public class HDBManagerController {
             throw new IllegalArgumentException("You do not have permission to delete this project or it does not exist.");
         }
         hdbManager.deleteListing(projectName.trim());
-        System.out.println("✅ Project deleted successfully: " + projectName.trim());
     }
 
     /**
@@ -260,7 +311,7 @@ public class HDBManagerController {
             throw new IllegalArgumentException("You do not have permission to toggle visibility of this project or it does not exist.");
         }
         hdbManager.toggleVisibility(projectName.trim(), visibility.trim());
-        System.out.println("✅ Visibility updated successfully for project: " + projectName.trim());
+        System.out.println("Visibility updated successfully for project: " + projectName.trim());
     }
 
     /**

@@ -1,6 +1,7 @@
 package model;
 
-import utils.Validator;
+import utils.*;
+import java.util.*;
 
 /**
  * Represents a withdrawal request for a Build-To-Order (BTO) application, storing the applicant's
@@ -140,5 +141,40 @@ public class WithdrawalRequest {
             }
         }
         return new WithdrawalRequest(row[0], row[1], row[2], row[3]);
+    }
+
+    /**
+     * Retrieves a Withdrawal Request by nric
+     *
+     * @param nric the nric of applicant
+     * @return The Withdrawal Request if found, null otherwise.
+     */
+
+    public static WithdrawalRequest getWithdrawalRequestByNric(String nric) {
+        ArrayList<WithdrawalRequest> requests = getWithdrawalRequests();
+        for (WithdrawalRequest request : requests) {
+            if (request.getApplicantNRIC().equals(nric)) {
+                return request;
+            }
+        }
+        System.out.println("No such Request found");
+        return null;
+    }
+
+    /**
+     * Retrieves all Withdrawal Requests
+     *
+     * 
+     * @return ArrayList of Withdrawal Requests.
+     */
+
+    public static ArrayList<WithdrawalRequest> getWithdrawalRequests() {
+        List<String[]> rows = CSVUtils.readCSV("data/withdrawals.csv");
+        ArrayList<WithdrawalRequest> requests = new ArrayList<>();
+        for (String[] row: rows) {
+            requests.add(new WithdrawalRequest(row[0], row[1], row[2], row[3]));
+        }
+
+        return requests;
     }
 }

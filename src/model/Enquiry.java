@@ -54,9 +54,6 @@ public class Enquiry {
         if (!Validator.isValidEnquiryDetail(detail)) {
             throw new IllegalArgumentException("Invalid enquiry detail: Must be non-empty and less than 500 characters.");
         }
-        if (response != null && response.trim().isEmpty()) {
-            throw new IllegalArgumentException("Response cannot be empty if provided.");
-        }
         this.enquiryid = enquiryid;
         this.enquirerNRIC = enquirerNRIC.trim();
         this.projectName = projectName.trim();
@@ -268,9 +265,6 @@ public class Enquiry {
         }
         if (!Validator.isValidEnquiryDetail(row[4])) {
             throw new IllegalArgumentException("Invalid enquiry detail in CSV row: Must be non-empty and less than 500 characters.");
-        }
-        if (row[5] != null && row[5].trim().isEmpty()) {
-            throw new IllegalArgumentException("Response in CSV row cannot be empty if provided.");
         }
         return new Enquiry(enquiryid, row[1], row[2], row[3], row[4], row[5]);
     }

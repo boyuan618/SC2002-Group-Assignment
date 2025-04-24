@@ -65,7 +65,6 @@ public class HDBOfficerController extends ApplicantController {
             throw new IllegalArgumentException("Project does not exist: " + projectName.trim());
         }
         hdbOfficer.registerForProject(project);
-        System.out.println("✅ Successfully registered for project: " + projectName.trim());
     }
 
     /**
@@ -104,7 +103,7 @@ public class HDBOfficerController extends ApplicantController {
             throw new IllegalArgumentException("Invalid flat type: Must be a valid type (e.g., '2-room', '3-room').");
         }
         hdbOfficer.handleFlatSelection(application, flatType.trim());
-        System.out.println("✅ Flat selection updated successfully for application NRIC: " + application.getApplicantNRIC());
+        
     }
 
     /**
@@ -127,7 +126,7 @@ public class HDBOfficerController extends ApplicantController {
         }
         Receipt receipt = Receipt.fromBTOApplication(application);
         receipt.printReceipt();
-        System.out.println("✅ Receipt generated successfully for application NRIC: " + application.getApplicantNRIC());
+        System.out.println("Receipt generated successfully for application NRIC: " + application.getApplicantNRIC());
     }
 
     /**
@@ -146,7 +145,7 @@ public class HDBOfficerController extends ApplicantController {
             throw new IllegalArgumentException("Scanner cannot be null.");
         }
         hdbOfficer.viewAndReplyEnquiries(sc, assignedProject.getProjectName());
-        System.out.println("✅ Enquiry responses processed successfully for project: " + assignedProject.getProjectName());
+        System.out.println("Enquiry responses processed successfully for project: " + assignedProject.getProjectName());
     }
 
     /**
@@ -208,7 +207,7 @@ public class HDBOfficerController extends ApplicantController {
         }
         boolean success = applicant.applyForProject(projectName.trim(), flatType.trim());
         if (success) {
-            System.out.println("✅ Application submitted successfully for project: " + projectName.trim());
+            System.out.println("Application submitted successfully for project: " + projectName.trim());
         }
         return success;
     }
