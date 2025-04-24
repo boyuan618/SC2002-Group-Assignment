@@ -161,30 +161,31 @@ public class User {
             System.out.println("Error: Unable to read user database.");
             return null;
         }
-
-        for (String[] userData : usersData) {
-            if (userData.length >= 6) {
-                try {
-                    String userNRIC = userData[1] != null ? userData[1].trim() : "";
-                    String userPassword = userData[4] != null ? userData[4].trim() : "";
-                    if (userNRIC.equals(NRIC.trim()) && userPassword.equals(password.trim())) {
-                        String name = userData[0] != null ? userData[0].trim() : "";
-                        int age = Integer.parseInt(userData[2]);
-                        String maritalStatus = userData[3] != null ? userData[3].trim() : "";
-                        String role = userData[5] != null ? userData[5].trim() : "";
-                        return new User(name, userNRIC, userPassword, age, maritalStatus, role);
+        try {
+            for (String[] userData : usersData) {
+                if (userData.length >= 6) {
+                    try {
+                        String userNRIC = userData[1] != null ? userData[1].trim() : "";
+                        String userPassword = userData[4] != null ? userData[4].trim() : "";
+                        if (userNRIC.equals(NRIC.trim()) && userPassword.equals(password.trim())) {
+                            String name = userData[0] != null ? userData[0].trim() : "";
+                            int age = Integer.parseInt(userData[2]);
+                            String maritalStatus = userData[3] != null ? userData[3].trim() : "";
+                            String role = userData[5] != null ? userData[5].trim() : "";
+                            return new User(name, userNRIC, userPassword, age, maritalStatus, role);
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Warning: Invalid age in user data: " + String.join(",", userData));
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Warning: Invalid user data: " + String.join(",", userData) + " - " + e.getMessage());
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Warning: Invalid age in user data: " + String.join(",", userData));
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Warning: Invalid user data: " + String.join(",", userData) + " - " + e.getMessage());
+                } else {
+                    System.out.println("Warning: Malformed user row in CSV: " + String.join(",", userData));
                 }
-            } else {
-                System.out.println("Warning: Malformed user row in CSV: " + String.join(",", userData));
             }
+        } catch (Exception e) {
+            System.out.println("Error: Invalid login credentials.");
         }
-
-        System.out.println("Error: Invalid login credentials.");
         return null;
     }
 

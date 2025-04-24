@@ -52,10 +52,11 @@ public class Login {
                 try {
                     User user = User.login(nric, password);
                     if (user == null) {
-                        throw new IllegalStateException("Login failed: Invalid NRIC or password.");
+                        System.out.println("Login failed: Invalid NRIC or password.");
+                    } else {
+                        System.out.println("Login successful for " + user.getName() + " (" + user.getRole() + ")");
+                        launchRoleInterface(user);
                     }
-                    System.out.println("Login successful for " + user.getName() + " (" + user.getRole() + ")");
-                    launchRoleInterface(user);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Login failed: " + e.getMessage());
                 }
